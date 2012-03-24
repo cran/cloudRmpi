@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+  <title></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<div> This directory/'package' contains the definitive versions of all
+R src and documentation files. It's here to keep it together with the
+Java code and to have it in the same hg repository.
+<p> The R cloudRmpi package is build and updated using a ant script
+found in the top level dir of this netbeans project.<br>
+</p>
+<hr style="width: 100%; height: 2px;"><br>
+Oddend Notes:<br>
+<br>
+In the *-package.R file ( read by roxygenize), <br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">@import
+rreval digest</span><br>
+</div>
+appears to want space delimited args<br>
+<br>
+On the other hand, the DESCRIPTION file (read by R CMD INSTALL) appears
+to want a comma delimited list.<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">Imports:
+rreval, digest</span><br>
+</div>
+<br>
+Oy.<br>
+<p><br>
+</p>
+</div>
+</body>
+</html>

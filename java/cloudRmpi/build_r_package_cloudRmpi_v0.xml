@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Builds the R cloudRmpi package.
+
+    Besides the R code, this script put the ppe-ompi into the R
+    package. Note that third-party jars are in the cloudRmpiJars package.
+
+    Before this script can be used, CreatePackageSkeleton.R (which calls
+    create.skeleton(...)) must be called once.
+    
+    This script is used to propagate changes in R src and documentation.
+    
+    Note that the combination of create.skeleton() and reoxygenize()
+    have has annoying idiosyncracies and buglets.  This script deals with them.
+-->
+<project name="build_r_package_cloudRmpi" default="build" basedir=".">
+    
+    <property name="VERSION" value="1.0"/>
+    
+    <!-- ___________ Dirs _________________________________________ -->
+    
+    <property name="H_PPE" value="/home/moi/h/ppe"/>    
+    <property name="FACTORY" value="${H_PPE}/cloudRmpi_package_factory"/>
+    <property name="PACKAGE" value="${FACTORY}/cloudRmpi"/>
+    <mkdir dir="${PACKAGE}"/>
+    <property name="PACKAGE_DOC"
+              value="${PACKAGE}/inst/doc"/>
+    <mkdir dir="${PACKAGE_DOC}"/>          
+    <property name="PACKAGE_THIRD_PARTY"
+              value="${PACKAGE}/inst/third_party"/>
+    <mkdir dir="${PACKAGE_THIRD_PARTY}"/>          
+    
+    <property name="PROJECTS" value="${H_PPE}/projects"/>
+    <property name="PRJ_PPE" value="${PROJECTS}/ppe_201202"/>
+    <property name="PRJ_RREVAL" value="${PROJECTS}/rreval_201202"/>
+    <property name="PRJ_CLOUD" value="${PROJECTS}/cloudrmpi_201202"/>
+    
+    <property name="FACTORY_PPE" value="${H_PPE}/ppe-ompi_factory"/>
+    <property name="FACTORY_RREVAL" value="${H_PPE}/rreval_package_factory"/>
+    <property name="FACTORY_CLOUD" value="${H_PPE}/cloudRmpi_package_factory"/>    
+    
+    <property name="CLOUD_RSRC" value="${PRJ_CLOUD}/src/cloudrmpi_r"/>
+    
+    <!-- __________________________________________________________ -->
+           
+    <target name="build">
+        
+        <echo message="Have you rebuild and ant'd ppe_201202?"/>
+        
+        <antcall target="rebuild_dependencies"/>
+        
+        <antcall target="copy_ppe_jars"/>
+        <antcall target="copy_rreval_jars"/>
+        <!-- <antcall target="copy_ppe"/>  -->
+        
+        <antcall target="copy_third_party"/>
+        
+            <!-- On to all the cloud stuff -->
+        <antcall target="copy_cloud_java"/>    
+        <antcall target="copy_conf"/>
+        <antcall target="copy_r_src"/>
+            <!-- ^ this includes rreval-package.R, which is really doc -->
+        <antcall target="create_pdf"/>    
+        <antcall target="copy_r_doc"/>
+            <!-- ^ this includes DESCRIPTION, in/home/moi/h/ppe/cloudRmpiJars_package_factory/cloudRmpiJars_1.0.tar.gzcopdex.html, and vignettes, etc. -->
+        <antcall target="rox_cloudRmpi"/>
+        <antcall target="delete_junk"/>    
+        <!-- ... may need to had more calls here -->
+        <!-- <antcall target="check_package"/> -->
+        <antcall target="build_package"/>
+        
+        <!-- For testing: -->
+        <!-- <antcall target="install_package"/> -->
+       
+    </target>
+    
+     <!-- __________________________________________________________ -->
+    
+    
+        <!-- Calls builds in to rebuild the packages that cloudRmpi depends 
+             on -->
+    <target name="rebuild_dependencies">
+        <echo message="In rebuild_dependencies"/>
+            <!-- build ppe -->
+        <ant antfile="${PRJ_PPE}/src/build_distribution.xml"
+             dir="${PRJ_PPE}/src"
+             target="build"
+             inheritall="false"/>
+        
+             <!-- build rreval -->
+        <!--  This was a nice idea BUT rebuilding renders it 'uninstalled' in the
+              local R installation.  Since cloudRmpi depends on it, building
+              the cloudRmpi package fails.
+        <ant antfile="${PRJ_RREVAL}/src/build_r_package_rreval.xml"
+             dir="${PRJ_RREVAL}/src"
+             target="build"
+             inheritall="false"/>
+        -->     
+        
+    </target>
+    
+        <!-- Copies the ppe jar and all the jars it uses,
+             including nbr utils and foreign -->
+    <target name="copy_ppe_jars">
+        <mkdir dir="${PACKAGE}/inst/jars"/>
+        <copy todir="${PACKAGE}/inst/jars" overwrite="true">
+            <fileset dir="${FACTORY_PPE}/ppe-ompi/lib">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+        <!-- Copies the rreval jar and all the jars it uses,
+             including nbr utils and foreign -->
+    <target name="copy_rreval_jars">
+        <mkdir dir="${PACKAGE}/inst/jars"/>
+        <copy todir="${PACKAGE}/inst/jars" overwrite="true">
+            <fileset dir="${FACTORY_RREVAL}/rreval/inst/jars">
+                <include name="**/*.jar"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    
+    <target name="copy_third_party">
+        <!-- ganymed -->
+        <copy todir="${PACKAGE_THIRD_PARTY}" overwrite="true">  
+            <fileset dir="${H_PPE}/foreign">
+                <include name="ganymed-ssh2-build251beta1/**"/>
+                <exclude name="ganymed-ssh2-build251beta1/*.jar"/>
+                <exclude name="ganymed-ssh2-build251beta1/javadoc/**"/>
+            </fileset>
+        </copy>
+        
+        <!-- trove -->
+        <copy todir="${PACKAGE_THIRD_PARTY}" overwrite="true">  
+            <fileset dir="${H_PPE}/foreign">
+                <include name="trove-2.1.0/**"/>
+                <exclude name="trove-2.1.0/lib/**"/>
+                <exclude name="trove-2.1.0/javadocs/**"/>
+            </fileset>
+        </copy>
+        
+        <!-- aws api -->
+        <copy todir="${PACKAGE_THIRD_PARTY}" overwrite="true">  
+            <fileset dir="${H_PPE}/foreign">
+                <include name="aws-java-sdk-1.3.3/**"/>
+                <exclude name="aws-java-sdk-1.3.3/lib/**"/>
+                <exclude name="aws-java-sdk-1.3.3/documentation/**"/>
+                <exclude name="aws-java-sdk-1.3.3/samples/**"/>
+                <exclude name="**/*.jar"/>
+            </fileset>
+        </copy>
+        
+    </target>
+    
+    <!-- This target copies the entire ppe project to cloudRmpi/inst.
+         The following version is ROUGH DRAFT.  We will have to modify
+         it to conform to R doc structure, etc.  We will also have
+         to modify some files.
+    -->
+    <!--
+    <target name="copy_ppe">
+        <mkdir dir="${PACKAGE}/inst"/>
+        <copy todir="${PACKAGE}/inst" overwrite="true">
+            <fileset dir="${PPE_OMPI_FACTORY}/ppe-ompi"/>
+        </copy>
+        
+            Rename lib to jars 
+        <move file="${PACKAGE}/inst/lib" tofile="${PACKAGE}/inst/jars"/> 
+            For clarity, rename src 
+        <move file="${PACKAGE}/inst/src" tofile="${PACKAGE}/inst/java_src"/>
+    </target>
+    -->
+
+        <!-- Copies CloudRmpi java src, jar and java doc to the package.
+             These files get inserted into dirctories create when
+             ppe was copied. However, in the case of javadoc, we need to
+             do a little shuffling around to avoid conflicts re file like
+             index.html
+        -->
+    <target name="copy_cloud_java">
+        
+            <!-- Get the rreval jar: Now redundant -->
+        <!--    
+        <copy file="${PRJ_RREVAL}/dist/rreval_201202.jar"
+              tofile="${PACKAGE}/inst/jars/rreval.jar"
+              overwrite="true"/>
+        -->
+        
+        <copy file="${PRJ_CLOUD}/dist/cloudrmpi_201202.jar"
+              tofile="${PACKAGE}/inst/jars/cloudrmpi.jar"
+              overwrite="true"/>
+              
+        <!--      
+        <mkdir dir="${PACKAGE}/inst/java_src/cloudrmpi"/>      
+        <copy todir="${PACKAGE}/inst/java_src/cloudrmpi" overwrite="true">
+            <fileset dir="${NB_PROJ}/src/cloudrmpi"/>
+        </copy>
+        -->
+        
+            <!-- Move javadoc (which is from ppe) to javadoc/ppe -->
+        <!--     
+        <move file="${PACKAGE}/inst/javadoc" tofile="${PACKAGE}/inst/ppe"/>              
+        <mkdir dir="${PACKAGE}/inst/javadoc"/>
+        <move file="${PACKAGE}/inst/ppe" tofile="${PACKAGE}/inst/javadoc/ppe"/>
+        
+        <mkdir dir="${PACKAGE}/inst/javadoc/cloudrmpi"/>
+        <copy todir="${PACKAGE}/inst/javadoc/cloudrmpi" overwrite="true">
+            <fileset dir="${NB_PROJ}/dist/javadoc"/>
+        </copy>
+        -->                
+    </target>
+    
+    <target name="copy_conf">
+        <mkdir dir="${PACKAGE}/inst/config"/>        
+        <copy file="${PRJ_CLOUD}/src/config_files/ec2-instance-types" 
+              toDir="${PACKAGE}/inst/config" overwrite="true"/>
+        <copy file="${PRJ_CLOUD}/src/config_files/mpi-ec2-ami-IDs" 
+              toDir="${PACKAGE}/inst/config" overwrite="true"/>            
+    </target>
+    
+    <target name="copy_r_src">
+        <mkdir dir="${PACKAGE}/R"/>
+        <copy file="${CLOUD_RSRC}/PPEClient.R" 
+              todir="${PACKAGE}/R" overwrite="true"/>        
+        <copy file="${CLOUD_RSRC}/cloudRmpi-package.R" 
+              todir="${PACKAGE}/R" overwrite="true"/>
+    </target>
+    
+    <target name="create_pdf">
+        <delete file="${CLOUD_RSRC}/cloudrmpi_manual.pdf"/>
+        <exec executable="/usr/local/bin/h2p">
+            <arg value="${CLOUD_RSRC}/cloudRmpi_Manual.html"/>
+            <arg value="${CLOUD_RSRC}/cloudRmpi_Manual.pdf"/>
+        </exec>
+    </target>
+    
+    <target name="copy_r_doc">
+        <!-- <copy file="${CLOUD_RSRC}/index.html" todir="${PACKAGE}" overwrite="true"/> -->
+        <copy file="${CLOUD_RSRC}/DESCRIPTION" 
+              todir="${PACKAGE}" overwrite="true"/>
+        <copy file="${CLOUD_RSRC}/cloudRmpi_Manual.Rnw" 
+              todir="${PACKAGE_DOC}" overwrite="true"/>      
+        <copy file="${CLOUD_RSRC}/cloudRmpi_Manual.html" 
+              todir="${PACKAGE_DOC}" overwrite="true"/>
+        <copy file="${CLOUD_RSRC}/cloudRmpi_Manual.pdf" 
+              todir="${PACKAGE_DOC}" overwrite="true"/>      
+        <copy file="${CLOUD_RSRC}/cloudrmpi.css" 
+              todir="${PACKAGE_DOC}" overwrite="true"/>  
+        <copy todir="${PACKAGE_DOC}">
+            <fileset dir="${CLOUD_RSRC}">
+                <include name="**/*.png"/>
+                <include name="**/*.jpg"/>
+                <include name="**/*.jpeg"/>
+            </fileset>
+        </copy>
+            
+    </target>
+    
+    <target name="rox_cloudRmpi">
+        <exec executable="/bin/sh" dir="${CLOUD_RSRC}" failonerror="true">
+            <arg value="-c"/>
+            <arg value="R --no-save --no-restore &lt; RoxCloudRmpi.R"/>            
+        </exec>
+    </target>
+    
+    <target name="delete_junk">
+        <delete file="${PACKAGE}/man/cloudRmpi-package.Rd"/>
+        <delete file="${PACKAGE}/Read-and-delete-me"/>
+    </target>
+    
+    <target name="check_package">
+        <exec executable="R"
+              dir="${FACTORY}"
+              failonerror="false">
+                  <!-- ^ Unfortunately R CMD check terminates with error
+                         if warnings are generated, so we can't use failonerror -->
+            <arg line=" CMD check cloudRmpi " />      
+        </exec>
+    </target>
+    
+    <target name="build_package">
+        <exec executable="R"
+              dir="${FACTORY}"
+              failonerror="true">
+            <arg line=" CMD build cloudRmpi " />      
+        </exec>
+    </target>
+    
+        <!-- This is really a test. Since we can't use failonerror
+             with check, we can test the package by seeing if it 
+             installs.
+        -->
+    <target name="install_package">
+        <exec executable="R"
+              dir="${FACTORY}"
+              failonerror="true">
+            <arg line=" CMD INSTALL cloudRmpi_${VERSION}.tar.gz " />      
+        </exec>
+        <echo message="Was ppe rebuild and re-ant'd before running this?"/>
+    </target>
+    
+</project>
