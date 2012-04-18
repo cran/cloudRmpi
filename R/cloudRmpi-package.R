@@ -1,10 +1,10 @@
-#' Cloud-based MPI Parallel Proccessing for R (cloudRmpi)
+#' Cloud-based MPI Parallel Processing for R (cloudRmpi)
 #'
 #' \tabular{ll}{
 #' Package: \tab cloudRmpi\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.0--\cr
-#' Date: \tab 2012-01-24\cr
+#' Version: \tab 1.1--\cr
+#' Date: \tab 2012-04-18\cr
 #' License: \tab GPL (>= 3)\cr
 #' }
 #'
@@ -18,9 +18,9 @@
 #'
 #' @name cloudRmpi
 #' @docType package
-#' @title Cloud-based MPI Parallel Proccessing for R (cloudRmpi)
+#' @title Cloud-based MPI Parallel Processing for R (cloudRmpi)
 #' @author Barnet Wagman \email{bw@@norbl.com}
-#' @depends cloudRmpiJars rreval digest
+#' @depends cloudRmpiJars (>= 1.1), rreval (>= 1.1), digest
 #' @keywords package
 NULL
            

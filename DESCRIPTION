@@ -1,8 +1,8 @@
 Package: cloudRmpi
 Type: Package
-Title: Cloud-based MPI Parallel Proccessing for R (cloudRmpi)
-Version: 1.0
-Date: 2012-03-24
+Title: Cloud-based MPI Parallel Processing for R (cloudRmpi)
+Version: 1.1
+Date: 2012-04-18
 Author: Barnet Wagman
 Maintainer: Barnet Wagman <bw@norbl.com>
 Description: cloudRmpi is means for doing parallel processing in R,
@@ -13,11 +13,11 @@ Description: cloudRmpi is means for doing parallel processing in R,
         rreval package). cloudRmpi should work with any MPI based R
         package (it has been tested with Rmpi, npRmpi, and snow).
 License: GPL-3
-Depends: cloudRmpiJars, rreval, digest
+Depends: cloudRmpiJars (>= 1.1), rreval (>= 1.1), digest
 SystemRequirements: Java (>=1.6); see the cloudRmpi manual (vignette)
         for details.
 URL: http://norbl.com/cloudrmpi/cloudRmpi.html
 Collate: 'cloudRmpi-package.R' 'PPEClient.R'
-Packaged: 2012-03-21 18:28:52 UTC; moi
+Packaged: 2012-04-23 18:37:55 UTC; moi
 Repository: CRAN
-Date/Publication: 2012-03-22 06:58:50
+Date/Publication: 2012-04-24 03:59:50

@@ -5,6 +5,8 @@
   sendPPEManagerCmd(con, cmd, maxWaitSecs = -1)
 }
 \arguments{
+  \item{portR}{launchRReServerAccessApp}
+
   \item{con}{}
 
   \item{cmd}{}
@@ -18,6 +20,8 @@
   launchRReServerAccessApp
 }
 \author{
+  Barnet Wagman
+
   Barnet Wagman
 }
 \keyword{internal}

@@ -55,7 +55,7 @@ ppe.launchNetworkManager <- function(port=4461,timeout=2,verbose=FALSE) {
   }
   else {
     cmd <- paste("java -classpath ",getClassPath(),
-                 " cloudrmpi.ROmpiPPEManager",
+                 " cloudrmpi.ROmpiPPEApp",
                  " ppeManagerPort=",port,              
                  sep=""
                  );
@@ -433,17 +433,17 @@ shutdownNetworkManager <- function() {
 #' @export
 #' @author Barnet Wagman
 #' @param portR
-launchPPEClientApp <- function(portR) {  
-  
-  cmd <- paste("java -classpath ",getClassPath(),
-               " cloudrmpi.CloudRmpiApp",
-               " portR=",portR,              
-               sep=""
-               );
-  
-  system(cmd,intern=FALSE,wait=FALSE,ignore.stderr=TRUE,ignore.stdout=TRUE);
-  if ( verboseOn() ) print(paste("system:",cmd));
-}
+#launchPPEClientApp <- function(portR) {  
+#  
+#  cmd <- paste("java -classpath ",getClassPath(),
+#               " cloudrmpi.CloudRmpiApp",
+#               " portR=",portR,              
+#               sep=""
+#               );
+#  
+#  system(cmd,intern=FALSE,wait=FALSE,ignore.stderr=TRUE,ignore.stdout=TRUE);
+#  if ( verboseOn() ) print(paste("system:",cmd));
+#}
 
 #' launchRReServerAccessApp
 #' @keywords internal
@@ -458,6 +458,21 @@ sendPPEManagerCmd <- function(con,cmd,maxWaitSecs=-1) {
   readMessage(con,maxWaitSecs=maxWaitSecs)  
 }
 
+#' getClassPath.v0
+#' Uses getJavaAppClassPath to get the class paths for cloudRmpi and cloudRmpiJars
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+#' @return class path containing cloudRmpi jars and third party jars.
+getClassPath.v0 <- function() {
+  
+  paste(getJavaAppClassPath("cloudRmpi"),
+        getJavaAppClassPath("cloudRmpiJars"),
+        sep=":"
+        )
+}
+
+#' getClassPath
 #' Uses getJavaAppClassPath to get the class paths for cloudRmpi and cloudRmpiJars
 #' @keywords internal
 #' @export
@@ -465,11 +480,16 @@ sendPPEManagerCmd <- function(con,cmd,maxWaitSecs=-1) {
 #' @return class path containing cloudRmpi jars and third party jars.
 getClassPath <- function() {
   
-  paste(getJavaAppClassPath("cloudRmpi"),
-        getJavaAppClassPath("cloudRmpiJars"),
-        sep=":"
-        )
+  if ( .Platform$OS == "windows" ) cpSep <- ";"
+  else cpSep <- ":";
+  
+  cp <- paste(getJavaAppClassPath("cloudRmpi",quoted=FALSE),
+              getJavaAppClassPath("cloudRmpiJars",quoted=FALSE),
+              sep=cpSep
+              );
+  paste("\"",cp,"\"",sep="")
 }
+
 
 
   

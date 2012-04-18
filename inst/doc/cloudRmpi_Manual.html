@@ -11,7 +11,7 @@
 <br>
 <h2 style="text-align: center;">cloudRmpi Manual</h2>
 <br>
-<h4 style="text-align: center;">March 2012, Version 1.0<br>
+<h4 style="text-align: center;">April 2012, Version 1.1<br>
 </h4>
 <h4 style="text-align: center;">Barnet Wagman <a
  href="mailto:bw@norble.com">bw@norbl.com</a></h4>
@@ -87,7 +87,11 @@ use
 of
 networks
 running
-Open MPI on Amazon's cloud computer service,
+Open
+MPI
+on
+Amazon's
+cloud computer service,
 EC2.&nbsp; We hope to add support for other vendors' cloud computing
 services in the near future.<br>
 <br>
@@ -96,11 +100,13 @@ There are two main elements in the <span style="font-style: italic;">cloudRmpi
 (that support Open MPI and R), and functions for accessing an R session
 on the master node of the network.&nbsp; <br>
 <br>
-The network manager is a java application (launched from within R with
-the <span style="font-family: monospace;">ppe.launchNetworkManager() </span>function;
-see
+The network manager is a java application, launched from within R with
+the <span style="font-family: monospace;">ppe.launchNetworkManager() </span>function
+(see
 <a href="#3._How_to_use_cloudRmpi">How to use cloudRmpi</a>,
-below). <br>
+below). ('ppe' stands for 'parallel processing&nbsp; with EC2.&nbsp;
+The network manager has also been released in a non-R package, <a
+ href="http://norbl.com/ppe-ompi/ppe-ompi.html">ppe-ompi</a>.)<br>
 <br>
 A network launched&nbsp; with th<span style="font-style: italic;"></span>e
 cloudRmpi
@@ -127,7 +133,11 @@ session
 that
 is
 accessible
-remotely using functions in the <span style="font-style: italic;">rreval</span>
+remotely
+using
+functions
+in
+the <span style="font-style: italic;">rreval</span>
 package.&nbsp; Using the
 access functions is covered in <a href="#3._How_to_use_cloudRmpi">How
 to use cloudRmpi</a>, below. <br>
@@ -206,6 +216,10 @@ the
 
 
 
+
+
+
+
       <a href="https://console.aws.amazon.com/ec2/home">AWS
 Management
 Console</a>
@@ -235,6 +249,8 @@ Key'&nbsp; are in the&nbsp; 'Access Credentials' section, in the
 <br>
 <h3><a name="3._How_to_use_cloudRmpi"></a>3. How to use cloudRmpi</h3>
 <h4 style="text-decoration: underline;">3.1 Creating a network</h4>
+<span style="font-weight: bold;">3.1.1 Launch the ec2 network manager</span><br>
+<br>
 In a local R session<br>
 <br>
 <div style="margin-left: 40px;"><span style="font-family: monospace;">library(cloudRmpi)</span><br>
@@ -245,35 +261,73 @@ Launch the network manager:<br>
 <div style="margin-left: 40px;"><span style="font-family: monospace;">ppe.launchNetworkManager()</span><br>
 </div>
 <br>
-The first time you use th<span style="font-style: italic;"><span
- style="font-style: italic;"></span></span>is function, you'll need to
-supply some
-values that are required to launch EC2 <a
- href="#4._Choosing_an_instance_type">instances</a> (see&nbsp;<a
- href="#2._RequirementsPrelims">Requirements/Prelims</a> section 3.2
-and 3.3 ). You'll initially get
-the
-"Required Ec2 Parameters" entry window:<br>
 <br>
+<span style="font-weight: bold; text-decoration: underline;">The first
+time time you launch the network manager</span><br>
+<br>
+<div style="margin-left: 40px;"><span style="font-weight: bold;">(a)
+Required parameters<br>
+<br>
+</span>You'll need to supply some
+values that are required to launch ec2 instances.&nbsp; From the top
+menu bar, use <span style="font-family: monospace;">Edit -&gt; EC2
+parameters</span>, i.e.<br>
+<br>
+<img style="width: 682px; height: 216px;" alt=""
+ src="ec2_man_ec2_param_mi_cropped.png"><br>
+<br>
+This brings up the "Required Ec2 Parameters" entry window:<br>
+<br>
+<br>
+</div>
+<div style="margin-left: 40px;">
 <div style="margin-left: 40px;"><img
  style="width: 650px; height: 513px;" alt=""
  src="req_ec2_params_shrunk.jpg"><br>
-<br>
 </div>
-These&nbsp; values will be stored in a configuration file named <tt>.ppe-config</tt>
+<br>
+These&nbsp; values will be stored in a configuration
+file named <tt>.ppe-config</tt>
 that
 will be created in your home directory. You can change these values
-using the
-<tt>Edit -&gt; Ec2 Parameters</tt> menu item in the main <i>ppe-ompi</i>
-window or by editing the file directly.
+using the <tt>Edit -&gt; EC2 Parameters</tt> menu item in the main
+network manager
+window or by editing the file directly. <br>
+<br>
+<span style="font-weight: bold;">(b) Optional
+billing authorization</span><br>
+<br>
+We charge $0.03 per hour per instance for use of our most recent
+machine images (AMIs).&nbsp; This is billed through Amazon but requires
+separate authorization.&nbsp; For details and&nbsp; to authorize
+billling, select <span style="font-family: monospace;">Account -&gt;
+Authorize instance billing</span> from top menubar of the main network
+manager<span style="font-style: italic;"> </span>window.<br>
 <br>
 <br>
-After you've filled in this form, the main network manager window is
-opened.&nbsp; To create a network<br>
+<span style="font-weight: bold;">(c) Optional AWS client parameters</span><br>
+<br>
+If you access the internet though a proxy server, you <span
+ style="font-style: italic;">may</span> need to set some Amazon client
+configuration parameters before you can launch ec2 instances.&nbsp; You
+can set any of these parameters via <span
+ style="font-family: monospace;">Edit -&gt; AWS client parameters</span>
+in top menu bar of the<span style="font-style: italic;"> </span>main<span
+ style="font-style: italic;"> n</span>etwork manager<span
+ style="font-style: italic;"> </span>window.&nbsp; See&nbsp;<a
+ href="http://docs.amazonwebservices.com/AWSSdkDocsJava/latest/DeveloperGuide/section-client-configuration.html">Amazon's
+documentation</a> for details on these parameters. If in doubt, we
+suggest that you first trying to create a network without setting any
+of these parameters.&nbsp; <br>
+</div>
+<br>
+<br>
+<br>
+<span style="font-weight: bold;">3.1.2 Specify and create a network</span><br>
 <br>
 <div style="margin-left: 40px;"><img
- style="width: 460px; height: 226px;" alt=""
- src="create_network_mi_detail.png"><br>
+ style="width: 629px; height: 205px;" alt=""
+ src="../../../cbp_201203/documents/doc/ppe-ompi/ec2_man_create_network_mi_cropped.png"><br>
 </div>
 <br>
 <span style="text-decoration: underline;"><br>
@@ -293,9 +347,9 @@ launch <span style="font-family: monospace;"></span><span
  style="font-style: italic;"></span>your
 instances in a cluster placement group.<br>
 <br>
+<br>
 <div style="margin-left: 40px;"><img
- style="width: 681px; height: 310px;" alt=""
- src="specify_ec2_network_top.png"><br>
+ style="width: 871px; height: 403px;" alt="" src="spec_network._top.png"><br>
 </div>
 <br>
 <span style="text-decoration: underline;">Choose a <a
@@ -314,22 +368,42 @@ group</a> and a cluster group always runs in a single zone.&nbsp;
 Otherwise, specifying a zone
 insures that your
 instances are not spread across multiple zones (which may or may not be
-worth something re communications).<br>
+worth something re communications).&nbsp; However, if you are using
+an&nbsp;<a href="http://aws.amazon.com/ebs/">Amazon Elastic Block Store
+(EBS)</a> for persistent storage, you must launch your instances in the
+availability zone where the EBS volume resides.&nbsp;&nbsp; An EBS
+volume can only
+be attached to an instance in its availability zone. (An AMI resides in
+a <a
+ href="http://docs.amazonwebservices.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">region</a>
+and can be launched in any availability zone within that region.)<br>
+<br>
+<div style="margin-left: 40px;"><img
+ style="width: 800px; height: 246px;" alt=""
+ src="../../../cbp_201203/documents/doc/ppe-ompi/network_spec_gui_bot.png"><br>
+</div>
 <br>
 <span style="text-decoration: underline;">Specify the security group</span><br>
-If 'Default' is selected, <span style="font-style: italic;">ppe-ompi</span>
+If 'Default' is selected, <span style="font-style: italic;">cloudRmpi</span>
 will create an appropriate one-time security group.&nbsp; See <a>Security</a>&nbsp;
 for
 details.
 <br>
 <br>
-<div style="margin-left: 40px;"><img
- style="width: 486px; height: 197px;" alt=""
- src="specify_ec2_network_bottom.png"><br>
+<span style="text-decoration: underline;">Specify the keypair</span><br>
+Normally, select the keypair that you specified in the "RSA keypair
+name" field of the "Required Ec2 Parameters" entry form.<br>
 <br>
-</div>
+<span style="text-decoration: underline;">Spot instances</span><br>
+If you want to use <a href="http://aws.amazon.com/ec2/spot-instances/">spot
+instances</a>,
+specify a spot price.&nbsp; (Make sure that you understand the
+limitations of spot instances.)&nbsp; Note that as of 2011, all
+instance
+types are available as spots.<br>
+<br>
 <span style="text-decoration: underline;">Network name</span><br>
-<span style="font-style: italic;">ppe-ompi </span>will automatically
+<span style="font-style: italic;">cloudRmpi </span>will automatically
 generate a unique network name (you can change it).<br>
 <br>
 <span style="text-decoration: underline;">Slots per host</span><br>
@@ -342,6 +416,7 @@ create the ompi hostfile.<br>
 <span style="text-decoration: underline;">Specify the number of
 instances<br>
 <br>
+<br>
 </span>When you hit 'Continue' you'll have a chance to check the
 network's&nbsp; specification
 before it's launched.<br>
@@ -350,9 +425,9 @@ before it's launched.<br>
 <span style="text-decoration: underline;"></span>The network is ready
 for use when its status is "running":<br>
 <br>
+<br>
 <div style="margin-left: 40px;"><img
- style="width: 437px; height: 226px;" alt=""
- src="network_running_detail.png"><br>
+ style="width: 441px; height: 229px;" alt="" src="running_enm_ul.png"><br>
 </div>
 <br>
 <br>
@@ -386,7 +461,17 @@ as
 'running'
 until
 all
-instances are booted and configured.<br>
+instances
+are
+booted
+and
+configured.<br>
+<br>
+Occasionally an instance will not launch successfully.&nbsp; You may
+want to use the Amazon Management Console to monitor this - watch for
+instances that get 'stuck' with "Status Checks" equal to "initializing
+...".&nbsp; If an instance does not respond, after ten minutes you'll
+be given the option of terminating it and proceeding.<br>
 <br>
 Connect to an R session running on the master node of the network:<br>
 <br>
@@ -530,6 +615,103 @@ Once you've ssh'd into the master node you can start a standard R
 session from the command line.<br>
 <br>
 <br>
+<span style="font-weight: bold; text-decoration: underline;">3.4 Using
+EBS
+for
+persistent storage</span><br>
+<br>
+When a EC2 instance is terminated, anything that was written the to
+disk is lost.&nbsp; However, you can attach persisent disk space to an
+EC2 instance using what AWS terms an <a
+ href="http://aws.amazon.com/ebs/">Amazon Elastic
+Block Store (EBS)</a>.&nbsp; The operating system sees an EBS as device
+(like a hard drive).&nbsp; <span style="font-style: italic;">ppe-ompi </span>provides
+support
+for
+using
+EBS.<br>
+<br>
+You can create an EBS volume with the <a
+ href="https://console.aws.amazon.com/">AWS Management Console</a> (EC2
+tab -&gt; Navigation sidebar Elastic Block Store: Volumes).&nbsp; You
+do not need to have any instances running to create volumes.<br>
+<br>
+To use an EBS volume with a specific EC2 instance, you must 'attach' it
+to the volume and then mount&nbsp; it (like any other Unix
+volume).&nbsp; You can get a list of your EBS volumes and their
+statuses from the ec2 network manager i.e.<br>
+<br>
+<div style="margin-left: 40px;"><img
+ style="width: 367px; height: 133px;" alt=""
+ src="volumes_mi_cropped.png"><br>
+</div>
+<div style="margin-left: 40px;"><br>
+</div>
+You can attach the volume using an instance popup menu e.g.<br>
+<br>
+<div style="margin-left: 40px;"><img
+ style="width: 772px; height: 204px;" alt=""
+ src="volume_popup_cropped.png"><br>
+</div>
+<br>
+(You can also list and attach volumes using the AWS Management Console.)<br>
+<br>
+To make an EBS volume accessible,&nbsp; you'll need to use Linux
+commands.&nbsp; You can ssh to your instance e.g.<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">ssh
+-i
+your_keypair_file.pem
+ec2-user@ec2-174-129-172-112.compute-1.amazon.com</span><br>
+</div>
+<br>
+or you can use an ssh shell that is built into <span
+ style="font-style: italic;">ppe-ompi</span>.<br>
+<br>
+A newly created volume does not have a files system.&nbsp;&nbsp; After
+attaching it to an instance, you'll need to use <span
+ style="font-family: monospace;"></span> the standard Linux utility <span
+ style="font-family: monospace;">mkfs</span><span
+ style="font-family: Arial,sans-serif;">, e.g.<br>
+<br>
+</span>
+<div style="margin-left: 40px;"><span
+ style="font-family: Arial,sans-serif;"><span
+ style="font-family: monospace;">sudo mkfs -t ext3 /def/sdf</span></span><br>
+<span style="font-family: Arial,sans-serif;"></span></div>
+<span style="font-family: Arial,sans-serif;"><br>
+</span>And of course you need to mount the device<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">sudo
+mount
+/def/sdf
+/home/ec2-user/your-mount-point</span><br>
+</div>
+<br>
+See <a
+ href="http://docs.amazonwebservices.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html">Amazon's
+documentation</a> for details.<br>
+<br>
+Note that an EBS volume resides in what Amazon terms an <span
+ style="text-decoration: underline;"><span
+ style="text-decoration: underline;"></span></span><a
+ href="http://docs.amazonwebservices.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html">availability
+zone</a>, and can only be attached to an EC2 instance running in that
+zone.&nbsp; So if you intend to attach an EBS volume to an instance in
+a <span style="font-style: italic;">ppe-ompi</span> network, you must
+launch the network in the EBS volume's zone (see <a>Specify
+and
+create
+a
+network</a>,
+above).&nbsp; An AMI resides in a 'region', which contains multiple
+availability zones, and all <span style="font-style: italic;">ppe-ompi</span>
+AMIs reside in the <span style="font-family: monospace;">us-east-1</span>
+region.&nbsp; So to use an EBS volume with <span
+ style="font-style: italic;">ppe-ompi</span>, it must be created in one
+of the us-east-1 zones.<br>
+<br>
+<br>
 <h3><a name="4._Choosing_an_instance_type"></a>4. Choosing an instance
 type</h3>
 Amazon's EC2 service supplies computers with various processor types
@@ -575,8 +757,12 @@ from
 AWS.&nbsp;
 According
 to
-Amazon, cluster placement
-groups are intended for hpc.<br>
+Amazon,
+cluster
+placement
+groups
+are
+intended for hpc.<br>
 <br>
 <h3><a name="5._Costs"></a>5. Costs</h3>
 There are no sunk costs when using EC2 (or in creating or maintaining
@@ -590,9 +776,10 @@ EC2
 Pricing</a>), although transfer charges are usually small compared to
 instance
 charges.&nbsp; There is no charge for data tranfers between instances
-in the same 'region'.&nbsp; <span class="normal_link"><br>
-<br>
-<br>
+in the same 'region'.<span class="normal_link"> In addition, we now
+charge $0.03 </span>for use of our most recent
+machine images (AMIs).&nbsp; <br>
+<span class="normal_link"><br>
 </span>
 <h3><a name="6._Security"></a>6. Security</h3>
 <br>
@@ -680,6 +867,16 @@ default security group has the following configuration:<br>
       </td>
       <td style="vertical-align: top;">Group members only</td>
     </tr>
+    <tr>
+      <td style="vertical-align: top;">16020<br>
+      </td>
+      <td style="vertical-align: top;">16020<br>
+      </td>
+      <td style="vertical-align: top;">tcp<br>
+      </td>
+      <td style="vertical-align: top;">All ip addresses<br>
+      </td>
+    </tr>
   </tbody>
 </table>
 <span class="normal_link"><br>
@@ -687,8 +884,9 @@ In other words, instances within the network have unrestricted access
 to each other (which is neccessary for Open MPI), but are only
 accessible from the rest of the world via
 ssh
-(port 22).<br>
-<br>
+(port 22). </span><span class="normal_link">16020 is used to send
+messages to a monitor program running on an EC2 instance.</span><br>
+<span class="normal_link"><br>
 </span><span style="font-style: italic;"></span>Each EC2 instance is
 associated the an RSA key.&nbsp; The public portion of this key must be
 registered with AWS before instances can be launched; it's name is
@@ -780,20 +978,34 @@ third-party packages:<br>
 
 
 
+
+
+
+
     <span id="txt">Note that the AWS sdk distribution itself contains
 third party software
 (see <span style="font-family: monospace;">inst/third-party/aws-java-sdk-1.3.3/third-party</span>
-in the <span style="font-style: italic;">ppe-ompi</span> distribution
+in the <span style="font-style: italic;">cloudRmpi</span> distribution
 for details).</span><br>
   </li>
   <li><a href="http://www.ganymed.ethz.ch/ssh2/">Ganymed SSH-2 for Java</a></li>
   <li><a href="http://trove.starlight-systems.com/">GNU Trove: High
 performance collections for Java.</a></li>
+  <li><a href="http://hc.apache.org/httpcomponents-core-ga/index.html">Apache
+Http
+Components
+Core</a></li>
+  <li><a href="http://aws.amazon.com/code/Amazon-FPS/5090796688019801">Amazon
+FPS
+Java
+Library</a><span style="font-style: italic;"></span></li>
 </ul>
-Copies of these package are included in the <span
- style="font-style: italic;">cloudRmpi </span>package, in the <span
- style="font-family: monospace;">inst/third-party
-</span>directory; see this directory for their licences.<br>
+See the the <span style="font-family: monospace;">third-party
+</span>directory in the <span style="font-style: italic;">cloudRmpiJars
+</span>package
+for
+these
+packages' licenses.<br>
 <br>
 We have previously released the network management application in the <a
  href="http://norbl.com/ppe-ompi.html">ppe-ompi</a> project (which is
@@ -809,187 +1021,10 @@ Images</a> (AMI).&nbsp; In addition to the operating system, an AMI can
 contain application software and can be configured to launch
 applications when booted.<br>
 <br>
-There are currently two publicly available AMIs with <span
- style="font-style: italic;">cloudRmpi </span>installed:<br>
-<br>
-<table style="border-collapse: collapse; text-align: left; width: 100%;"
- border="1" cellpadding="2" cellspacing="2">
-  <tbody>
-    <tr>
-      <td style="vertical-align: top;">AMI ID<br>
-      </td>
-      <td style="vertical-align: top;"><span>ami-58bb6431</span></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Name<br>
-      </td>
-      <td style="vertical-align: top;"><span class="tag">cloudRmpi 1.0
-hvm Northbranchlogic</span></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Virtualization type<br>
-      </td>
-      <td style="vertical-align: top;">hvm<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Operating system<br>
-      </td>
-      <td style="vertical-align: top;">Linux, image based on <span
- style="font-family: monospace;" class="value">amazon/EC2 CentOS 5.4
-HVM AMI</span></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Open MPI<br>
-      </td>
-      <td style="vertical-align: top;">1.4.3<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">R<br>
-      </td>
-      <td style="vertical-align: top;">2.14.2<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">R packages<br>
-      </td>
-      <td style="vertical-align: top;">Rmpi npRmpi snow rreval foreach
-doSNOW doMPI (and package they depend on).<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Disk space<br>
-      </td>
-      <td style="vertical-align: top;">
-      <table
- style="border-collapse: collapse; text-align: left; width: 100%;"
- border="0" cellpadding="2" cellspacing="2">
-        <tbody>
-          <tr>
-            <td style="vertical-align: top;"><span
- style="text-decoration: underline;">FileSystem</span><br>
-            </td>
-            <td style="vertical-align: top;"><span
- style="text-decoration: underline;">Size</span><br>
-            </td>
-            <td style="vertical-align: top;"><span
- style="text-decoration: underline;">Available</span><br>
-            </td>
-          </tr>
-          <tr>
-            <td style="vertical-align: top;">/ (contains R and
-cloudRmpi)<br>
-            </td>
-            <td style="vertical-align: top;"><span><span
- style="font-family: monospace;"><span style="font-family: monospace;"></span></span></span>9.9
-GiB<br>
-            </td>
-            <td style="vertical-align: top;">5.9 GiB<br>
-            </td>
-          </tr>
-          <tr>
-            <td style="vertical-align: top;">/mnt<br>
-            </td>
-            <td style="vertical-align: top;">827 GiB<br>
-            </td>
-            <td style="vertical-align: top;">785 GiB<br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<br>
-<table style="border-collapse: collapse; text-align: left; width: 100%;"
- border="1" cellpadding="2" cellspacing="2">
-  <tbody>
-    <tr>
-      <td style="vertical-align: top;">AMI ID<br>
-      </td>
-      <td style="vertical-align: top;"><span></span><span class="value">ami-5608d73f</span></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Name<br>
-      </td>
-      <td style="vertical-align: top;"><span class="tag">cloudRmpi
-1.0-1
-pv Northbranchlogic</span></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Virtualization type<br>
-      </td>
-      <td style="vertical-align: top;">pv<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Operating system<br>
-      </td>
-      <td style="vertical-align: top;">Linux, based on <span
- style="font-family: monospace;"></span><span
- style="font-family: monospace;" class="value">amazon/amzn-ami-2010.11.1-beta.x86_64-ebs.</span><span
- style="font-family: monospace;"></span> This appears to be based on
-Centos. <span style="font-family: monospace;" class="value"></span></td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Open MPI<br>
-      </td>
-      <td style="vertical-align: top;">1.4.3<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">R<br>
-      </td>
-      <td style="vertical-align: top;">2.14.2<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">R packages<br>
-      </td>
-      <td style="vertical-align: top;">Rmpi npRmpi snow rreval foreach
-doSNOW doMPI (and package they depend on).<br>
-      </td>
-    </tr>
-    <tr>
-      <td style="vertical-align: top;">Disk space<br>
-      </td>
-      <td style="vertical-align: top;">
-      <table style="text-align: left; width: 100%;" border="0"
- cellpadding="2" cellspacing="2">
-        <tbody>
-          <tr>
-            <td style="vertical-align: top;"><span
- style="text-decoration: underline;">FileSystem</span><br>
-            </td>
-            <td style="vertical-align: top;"><span
- style="text-decoration: underline;">Size</span><br>
-            </td>
-            <td style="vertical-align: top;"><span
- style="text-decoration: underline;">Available</span><br>
-            </td>
-          </tr>
-          <tr>
-            <td style="vertical-align: top;">/ (contains R and
-cloudRmpi)<br>
-            </td>
-            <td style="vertical-align: top;"><span><span
- style="font-family: monospace;"><span style="font-family: monospace;"></span></span></span>63
-GiB<br>
-            </td>
-            <td style="vertical-align: top;">61 GiB<br>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<br>
-<br>
-<br>
+<a href="http://aws.amazon.com/amis/">Amazon Machine Images</a> (AMIs)
+with Open MPI and R installed are listed <a
+ href="http://norbl.s3-website-us-east-1.amazonaws.com/Machine_images_cloudrmpi.html">here</a><br>
+<span style="font-style: italic;"></span><br>
 To use a <a href="http://aws.amazon.com/ec2/hpc-applications/">cluster
 placement
 group</a>, you must use an image with hmv virtualization.&nbsp;
@@ -1001,8 +1036,7 @@ function <span style="font-family: monospace;">rreServer()</span> when
 booted.&nbsp; I.e. they are ready to be <span
  style="font-style: italic;"></span>to accept a connection from <span
  style="font-family: monospace;">ppe.startClient()</span> as soon as
-the boot process is complete. They have (nearly) all R packages
-installed.<br>
+the boot process is complete.<br>
 <br>
 <span class="normal_link"></span><br>
 <h3><a name="9._Architecture"></a>9. Architecture</h3>

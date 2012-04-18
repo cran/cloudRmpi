@@ -1,0 +1,10 @@
+com.norbl.cbp.ppe
+com.norbl.cbp.ppe.gui
+com.norbl.cbp.ppe.gui.networkspec
+com.norbl.cbp.ppe.ompi
+com.norbl.cbp.ppe.usermonitor
+com.norbl.util
+com.norbl.util.aws
+com.norbl.util.gui
+com.norbl.util.http
+com.norbl.util.ssh

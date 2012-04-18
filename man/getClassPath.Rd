@@ -1,6 +1,7 @@
 \name{getClassPath}
 \alias{getClassPath}
-\title{Uses getJavaAppClassPath to get the class paths for cloudRmpi and cloudRmpiJars}
+\title{getClassPath
+Uses getJavaAppClassPath to get the class paths for cloudRmpi and cloudRmpiJars}
 \usage{
   getClassPath()
 }
@@ -9,8 +10,8 @@
   jars.
 }
 \description{
-  Uses getJavaAppClassPath to get the class paths for
-  cloudRmpi and cloudRmpiJars
+  getClassPath Uses getJavaAppClassPath to get the class
+  paths for cloudRmpi and cloudRmpiJars
 }
 \author{
   Barnet Wagman
