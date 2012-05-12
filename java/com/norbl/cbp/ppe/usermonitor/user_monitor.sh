@@ -1,5 +1,5 @@
 #
-#    Copyright 201# Northbranchlogic, Inc.
+#    Copyright 2012 Northbranchlogic, Inc.
 #
 #    This file is part of Parallel Processing with EC2 (ppe).
 #

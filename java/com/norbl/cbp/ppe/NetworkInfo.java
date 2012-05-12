@@ -154,6 +154,10 @@ public class NetworkInfo implements Comparable {
         return(isShuttingDown() || isTerminated());
     }
     public boolean isNil() { return(State.nil.equals(state)); }
+    public boolean isServicesNotRunning() { 
+        return(State.servicesNotRunning.equals(state));
+    }
+    
 
     public void setServices(Services services) {
         this.services = services;

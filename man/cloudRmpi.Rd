@@ -8,8 +8,8 @@
 }
 \details{
   \tabular{ll}{ Package: \tab cloudRmpi\cr Type: \tab
-  Package\cr Version: \tab 1.1--\cr Date: \tab
-  2012-04-18\cr License: \tab GPL (>= 3)\cr }
+  Package\cr Version: \tab 1.2--\cr Date: \tab
+  2012-05-18\cr License: \tab GPL (>= 3)\cr }
 
   cloudRmpi is means for doing parallel processing in R,
   using MPI on a cloud-based network.  It currently

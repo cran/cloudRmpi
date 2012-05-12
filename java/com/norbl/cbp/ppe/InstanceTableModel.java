@@ -20,6 +20,7 @@
 package com.norbl.cbp.ppe;
 
 import com.norbl.util.*;
+import com.norbl.util.gui.*;
 import javax.swing.table.*;
 
 /** The Swing table model supporting info tables. All information
@@ -42,7 +43,8 @@ public class InstanceTableModel extends AbstractTableModel
         launchTime("Launch time"),
         instanceType("Instance type"),
         ami("ami"),
-        virualizationType("Virtualization");
+        virualizationType("Virtualization"),
+        availabilityZone("Zone");
 
         String nm;
         ItColumn(String nm) { this.nm = nm; }
@@ -69,41 +71,48 @@ public class InstanceTableModel extends AbstractTableModel
      }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
+        try {
+            NetworkInfo ni = getNetwork();
+            if ( ni == null ) return("null");
 
-        NetworkInfo ni = getNetwork();
-        if ( ni == null ) return("null");
+            InstanceStatus s = ni.instances.get(rowIndex);
+            if ( s == null ) return("null");
 
-        InstanceStatus s = ni.instances.get(rowIndex);
-        if ( s == null ) return("null");
+            ItColumn col = ItColumn.values()[columnIndex];
 
-        ItColumn col = ItColumn.values()[columnIndex];
-
-        switch(col) {
-            case publicDns:
-                return( s.getPublicDnsName() );
-            case status:
-                try {
-                    return(ni.getStateDescription());
-                }
-                catch(Exception xxx) {
-                    ExceptionHandler.text(xxx);
-                    return("-");
-                }
-            case nodeType:
-                return( s.getTagValue(InstanceTag.nodeType));
-            case launchTime:
-                long tm = s.instance.getLaunchTime().getTime();
-                if ( tm < Long.MAX_VALUE ) return(TimeUtil.toDateTimeString(tm));
-                else return("null");
-            case instanceType:
-                return(s.instance.getInstanceType());
-            case ami:
-                return(s.instance.getImageId());
-            case virualizationType:
-                return(s.instance.getVirtualizationType());        
-            default:
-                return("Undefined column: " +
-                       ((col != null)?col.toString():"null"));
+            switch(col) {
+                case publicDns:
+                    return( s.getPublicDnsName() );
+                case status:
+                    try {
+                        return(ni.getStateDescription());
+                    }
+                    catch(Exception xxx) {
+                        ExceptionHandler.text(xxx);
+                        return("-");
+                    }
+                case nodeType:
+                    return( s.getTagValue(InstanceTag.nodeType));
+                case launchTime:
+                    long tm = s.instance.getLaunchTime().getTime();
+                    if ( tm < Long.MAX_VALUE ) return(TimeUtil.toDateTimeString(tm));
+                    else return("null");
+                case instanceType:
+                    return(s.instance.getInstanceType());
+                case ami:
+                    return(s.instance.getImageId());
+                case virualizationType:
+                    return(s.instance.getVirtualizationType());     
+                case availabilityZone:
+                    return(s.getAvailabilityZone());
+                default:
+                    return("Undefined column: " +
+                        ((col != null)?col.toString():"null"));
+            }
+        }
+        catch(Exception xxx) {
+            GuiUtil.exceptionMessage(xxx);
+            return(" ");
         }
     }
 

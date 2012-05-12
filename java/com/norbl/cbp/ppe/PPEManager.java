@@ -29,6 +29,8 @@ import com.norbl.util.aws.*;
 import javax.swing.*;
 import java.util.*;
 import com.amazonaws.services.ec2.model.*;
+import com.norbl.cbp.ppe.ompi.*;
+import java.net.*;
 
 /** Launches and manages a network of ec2 instances. This class provides
  *  the operations but does <i>not</i> contain any gui code or references
@@ -181,6 +183,8 @@ abstract public class PPEManager {
     abstract protected NetworkSpec getFullySpecifiedNetworkSpec(String networkName);
     abstract protected String getAboutAppTitle();
     abstract protected String getAboutAppVersion();
+    abstract protected String getAmiWebpageUrl();
+    abstract protected String getManualWebpageUrl();
     
     public void updateParamsFromConfigFile() {
         try {
@@ -252,15 +256,16 @@ abstract public class PPEManager {
                              
                 Class[] paramTypes = m.getParameterTypes();
                 Object[] params;
+                
                 if ( paramTypes.length == 0 ) {
                     params = new Object[] {};
                 }
                 else {
-                    params = new Object[] { ac.networkID };
+                    params = new Object[] { ac.networkID };                   
                 }                
                 m.invoke(PPEManager.this, params);                
             }
-            catch(Exception xx) {                
+            catch(Exception xx) {                                
                 GuiUtil.exceptionMessage(xx); 
             }
         }        
@@ -285,7 +290,12 @@ abstract public class PPEManager {
         terminateInstances("Terminate instances"),
         
         listEbsVolumes("Show EBS volumes"),
-        updateEbsVolumeList("Update list of EBS volumes");
+        updateEbsVolumeList("Update list of EBS volumes"),
+        
+        showAmiWebpage("AMIs"),
+        showManualWebpage("Manual"),
+        
+        reconfigInstances("Retry instance configuration");
         
         public String textMi;
         Op(String textMI) { this.textMi = textMI; }            
@@ -518,6 +528,52 @@ abstract public class PPEManager {
              (networkManagerFrame instanceof NetworkManagerFrame) ) {
             ((NetworkManagerFrame) networkManagerFrame).setDisplayedBillingID(
                                                 getBillingIDForDisplay());
+        }
+    }
+    
+    public void showAmiWebpage() throws Exception {
+        java.awt.Desktop.getDesktop().browse(new URI(getAmiWebpageUrl()));
+    }
+    
+    public void showManualWebpage() throws Exception {
+        java.awt.Desktop.getDesktop().browse(new URI(getManualWebpageUrl()));
+    }
+    
+    public void reconfigInstances(String networkID) {
+        
+        NetworkInfo ni = NiM.getForID(networkID);
+        if ( ni == null ) throw new RuntimeException("NO " +
+                     " network info for ID=" + networkID);
+        Services s = ni.getServices(); 
+        if ( s instanceof OmpiConfigServices ) {
+            NetworkSpec ns = ((OmpiConfigServices) s).getNetworkSpec();
+            if ( ns == null ) {
+                GuiUtil.warning(new String[] {
+                    "There is no network spec available for",
+                    "network " + ni.ID + "; it cannot be configured."
+                    },
+                    "No network spec available");
+                return;
+            }
+            
+            if ( GuiUtil.answerIsYes(new String[] {
+                "Retry instance configuration",
+                " ",
+                "Instances in the network are configured for use with",
+                "Open MPI immediatedly after they are launched.",
+                " ",
+                "If the configuration appears to be incomplete, you ",
+                "can retry it.  It is usually NOT necessary to do so.",
+                " ",
+                "Retry instance configuration?",
+                " "
+            },
+            "Retry instance configuration")) {  
+                ((OmpiConfigServices) s).set(ec2w);
+                ((OmpiConfigServices) s).set(paramsEc2);
+                s.launch();
+                NiM.update(ec2w);
+            }
         }
     }
     

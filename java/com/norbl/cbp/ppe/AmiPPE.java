@@ -35,11 +35,13 @@ public class AmiPPE implements Serializable {
     
     public enum ATag {
         name("Name"),
+        nameShort("nameShort"),
         openMPI("Open MPI"),
         r("R"),
         linux("Linux"),
         rreval("rreval"),
-        rstudio("RStudio")
+        rstudio("RStudio Server"),
+        rPackages("R packages")
         ;
         
         public String key;
@@ -58,7 +60,16 @@ public class AmiPPE implements Serializable {
     /** AMI tags.  Note that these are only directly accessible by
      *  AMI's owner, even for public AMIs.  We store these in the S3 data.
      */
-    public HashMap<String,String> tags;          
+    public HashMap<String,String> tags;     
+    
+    /** A description of the AMI used in the tooltip.  This string uses
+     *  tag data, so it cannot be build by users.  It is stored in the S3
+     *  versions of the AmiPPEs.  This string is html but does not
+     *  have enclosing html or body tags.  That way, information can be
+     *  appended or prepended to it.  Using an s3 based description et's us
+     *  change or reorder the contents with updating the cloudRmpi package.
+     */
+    public String descriptionHtml;
     
     public AmiPPE(String amiID,double imageCharge) {
         this.amiID = amiID;
@@ -141,6 +152,30 @@ public class AmiPPE implements Serializable {
         }        
     }
     
+    private void createDescriptionHtml() {
+    
+        StringBuilder s = new StringBuilder();
+        
+        append(s,ATag.linux,false);
+        append(s,ATag.openMPI,true);
+        append(s,ATag.r,true);
+        append(s,ATag.rreval,true);
+        append(s,ATag.rstudio,true);
+        append(s,ATag.rPackages,true);
+    
+        descriptionHtml = s.toString();
+    }
+
+    private void append(StringBuilder s, ATag at, boolean prependTagName) {
+        
+        String val = tags.get(at.key);
+        if ( val == null ) return;
+        if ( prependTagName ) s.append(at.key + " ");
+        s.append(val);
+        s.append("<br>");
+    }
+    
+    
     public String toString() {
         StringBuilder s = new StringBuilder();
         s.append(amiID + " " + tags.get(ATag.name.key) + " " + imageCharge + " " +
@@ -221,6 +256,20 @@ public class AmiPPE implements Serializable {
         }
     }
     
+        /** Warning: this will only work if the images in the AmiPPEs
+         *  were retrieved by the the owner of
+         *  the images, whether or not they are public.  We run this
+         *  once and store the tag info the AmiPPEs in s3.
+         * 
+         * @param ec2Client
+         * @param amis 
+         */
+    public static void createDescriptions(List<AmiPPE> amis) {    
+        for ( AmiPPE ami : amis ) {
+            ami.createDescriptionHtml();            
+        }
+    }
+    
     /** Uses {@link #getTags} which only works if the user is the
      *  ami owner.
      * @param ec2Client
@@ -238,6 +287,7 @@ public class AmiPPE implements Serializable {
         
         getImageInfo(ec2Client, aps);
         getTags(aps);
+        createDescriptions(aps);
         
         return(aps);
     }

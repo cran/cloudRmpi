@@ -427,7 +427,7 @@ public class NSGFrameTemplate extends javax.swing.JFrame {
                                                 ec2Region);
 
             NetworkSpecGui g = new NetworkSpecGui(m,
-                                                  AmiChoiceR.class,
+                                                  AmiChoiceOmpi.class,
                                                   NSGFrameTemplate.class,
                                                  "test-network");
             g.fillSpec();

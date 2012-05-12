@@ -21,7 +21,6 @@ package com.norbl.cbp.ppe.ompi;
 
 import com.norbl.cbp.ppe.*;
 import ch.ethz.ssh2.*;
-import com.norbl.util.gui.*;
 import com.norbl.util.ssh.*;
 
 /**
@@ -37,12 +36,11 @@ public class OmpiConfigServices extends Services {
 
     private State state;
 
-    OmpiConfig oc;
+    OmpiConfigurer oc;
 
     private long initialTestTime, lastTestTime;
     
     private Ec2Wrangler ec2w;
-//    private OmpiSpec ompiSpec;
     private NetworkSpec networkSpec;
     private ParamsEc2 paramsEc2;
 
@@ -55,7 +53,7 @@ public class OmpiConfigServices extends Services {
     }
     
     public void set(Ec2Wrangler ec2w) { this.ec2w = ec2w; }
-//    public void set(OmpiSpec ompiSpec) { this.ompiSpec = ompiSpec; }
+    
     public void set(NetworkSpec networkSpec) { 
         this.networkSpec = networkSpec;
     }
@@ -124,7 +122,7 @@ public class OmpiConfigServices extends Services {
     public void launch() {
 
         setState(State.pending);
-        oc = new OmpiConfig(ec2w,networkSpec,paramsEc2);
+        oc = new OmpiConfigurer(ec2w,networkSpec,paramsEc2);
         if ( oc.config(networkID) ) setState(State.running);
         else setState(State.notRunning);
     }
@@ -147,10 +145,13 @@ public class OmpiConfigServices extends Services {
             SshExec sx = new SshExec(con);
             boolean boo =
                     sx.fileExists(ConstantsEc2.EC2_USER_HOME_DIR + "/" +
-                                  ConstantsOmpi.OMPI_HOSTFILE_NAME)
+                                  ConstantsOmpi.OMPI_HOSTFILE_NAME,
+                                  1000L * 10L)
                     &&
                     sx.fileExists(ConstantsEc2.EC2_USER_SSH_DIR + "/" +
-                                  ConstantsOmpi.PPE_MASTER_KEY_PAIR_FILENAME)
+                                  ConstantsOmpi.PPE_MASTER_KEY_PAIR_FILENAME,
+                                  1000L * 10L
+                                  )
                   ;
             if ( boo ) setState(State.running);
             else setState(State.notRunning);
@@ -161,5 +162,9 @@ public class OmpiConfigServices extends Services {
         finally {
             if ( con != null ) con.close();
         }
+    }
+    
+    public NetworkSpec getNetworkSpec() {
+        return(networkSpec);
     }
 }

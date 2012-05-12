@@ -127,10 +127,11 @@ public class ChoiceMenu extends JPanel {
             
             for ( int iCol = 1; iCol < c.getNColumns(); iCol++ ) {
                 gbc = new GridBagConstraints();
+                gbc.fill = GridBagConstraints.NONE; // ??????????
                 gbc.gridx = iCol;
                 gbc.gridy = iRow+1;
                 gbc.anchor = c.getGridBagAnchor(iCol); // GridBagConstraints.BASELINE_LEADING;
-                gbc.weightx = c.getColumnWeight(iCol);
+                gbc.weightx = c.getColumnWeight(iCol);            
                 gbc.insets = c0.getInsets(iCol);
                 this.add(c.getComponent(iCol),gbc);
             }

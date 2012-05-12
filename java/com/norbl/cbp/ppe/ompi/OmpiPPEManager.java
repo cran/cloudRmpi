@@ -17,8 +17,8 @@ import com.norbl.cbp.ppe.gui.networkspec.*;
  */
 public class OmpiPPEManager extends PPEManager {
 
-    public static final Class AMI_CHOICE_CLASS = AmiChoiceOmpi.class;
-    public static final Class NSG_FRAME_CLASS = NSGFrameOmpi.class;
+    public static final Class AMI_CHOICE_CLASS = AmiChoiceU.class;
+    public static final Class NSG_FRAME_CLASS = NSGFrameU.class;
     
     ParamsOmpi paramsOmpi;
     OmpiSpec ompiSpec;
@@ -83,5 +83,13 @@ public class OmpiPPEManager extends PPEManager {
         "Version 1.2<br><br><br> &copy; 2012, Barnet Wagman<br>Northbranchlogic, Inc." +
                 "<html>"
               );
+    }
+    
+    protected String getAmiWebpageUrl() {
+        return("https://s3.amazonaws.com/norbl/Machine_images_ppe-ompi.html");
+    }
+    
+    protected String getManualWebpageUrl() {
+        return("http://norbl.com/ppe-ompi/ppe-ompi.html");
     }
 }

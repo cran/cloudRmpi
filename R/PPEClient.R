@@ -47,8 +47,7 @@ ppe.launchNetworkManager <- function(port=4461,timeout=2,verbose=FALSE) {
   defineMessageTypes();
   
   if ( clientAppIsRunning(port=port,timeout=timeout) ) {
-    connectToNetworkManager(port = port, timeout = timeout);
-    print("Connected to an existing instance of ppe-ompi network manager.");
+    connectToNetworkManager(port = port, timeout = timeout);    
     if ( verboseOn() ) print(paste("The ompi-ppe network manager is already running, ",
                                "port=",port,sep=""));
     return();
@@ -194,14 +193,20 @@ ppe.showClients <- function() {
  
 #' Shutdown connections
 #'
-#' Close all open connections to master nodes and terminates the 
-#' ppe-ompi access application.
+#' Close all open connections to master nodes,terminates the 
+#' ppe-ompi access application, terminates port forwarding to
+#' RStudio Server, and disconnects from the network manager.
 #'
 #' @note This function does not terminate ec2 instances.
 #' @author Barnet Wagman
 #' @export
 ppe.shutdown <- function() {  
-  rre.closeAllConnections();  
+  tryCatch(rre.closeAllConnections(),
+           error=function(e){},warning=function(w){});
+  tryCatch(ppe.shutdownPortForwardingApp(),
+           error=function(e){},warning=function(w){});
+  tryCatch(ppe.disconnectNetworkManager(),
+           error=function(e){},warning=function(w){});
 }
 
 #' Get network names
@@ -344,7 +349,7 @@ connectToNetworkManager <- function(port=port,timeout=timeout,maxWait=10) {
   con <- getConNetworkManager();
   if ( !isGoodCon(con) ) {
     tmFin <- Sys.time() + maxWait;
-    while ( tmFin >= Sys.time() ) {q
+    while ( tmFin >= Sys.time() ) {
         con <- tryCatch(conToNM(port=port,timeout=timeout),
                         error=function(e) { 
                           if ( verboseOn() ) print(paste("conNM error=",e));
@@ -490,6 +495,355 @@ getClassPath <- function() {
   paste("\"",cp,"\"",sep="")
 }
 
+# --------- Added to support rstudio-server, cloudRmpi 1.2 -----------------
 
-
+#' Connect to RStudio server.
+#' 
+#' RStudio server is an IDE for R that runs in a web browser.  This function
+#' connects to an instance of RStudio server running on the master node of an
+#' EC2 network.
+#'
+#' The function first start creates a connection to the master node via ssh port 
+#' forwarding and then launches your default web browser displaying an RStudio 
+#' server session.  To use RStudio, you will need to login with Username=rsu, 
+#' Password=rsu.  Note that this is actually quite secure.  Access to the remote 
+#' host is via ssh (using your keypair),
+#' the RStudio login is superflous (but impossible to disable). See the CloudRmpi
+#' manual for details.
+#'
+#' Note that the RStudio session is logged in as user 'rsu' and initially the
+#' working directory is /home/rsu.  Due to constraints imposed by the ssh and
+#' the RStudio login mechanism, as user rsu you will not be able to access
+#' the /home/ec2-user. And you will not be able to ssh to the system as rsu
+#' only as ec2-user.  However, both RStudio and ppe-ompi network manager provide shell
+#' access to the host. Once in shell, you can use sudo or su (neither require
+#' passwords).  Or you can ssh to the host as ec2-user and the use sudo or su.
+#' See the cloudRmpi manual for details.
+#'
+#' @author Barnet Wagman
+#' @export
+#'
+#' @param hostName the name of host that is the master node of the 
+#' ppe-ompi network; usually NULL (the default). If this param is NULL 
+#' and the network name
+#' is NULL, the function will attempt to retrieve a connection from the 
+#' connection manager environment.  This param needs to be supplied only
+#' if you have more than one ppe-ompi network running.
+#' @param userName name of user on the master node host under which
+#' R is running.  By default the user name is "ec2-user" and you do not
+#' need to specify this parameter.
+#' @param networkName name of a ppe-ompi network; usually NULL (the default).
+#' If this param is NULL and the hostName is NULL, the function will attempt 
+#' to retrieve a connection from the connection manager environment.  This 
+#' param is only used if you have more than one ppe-ompi network running; int
+#' that case it is an alternative to specifying the hostName.
+#' @param pemFile RSA keypair file used to access to master node of the
+#' ppe-ompi network.  If NULL, the function obtains the file's pathname from
+#' the network manager.  Normally you do not need to specify this parameters.
+#' @param portPfApp number of the port used for communications with 
+#' cloudrmpi.PortForwardingServer, the Java app that handles manages port forwarding.
+#' @param portRemote number of port that RStudio server is using, 8787 on 
+#' cloudRmpi AMIs that support RStudio.
+#' @param portLocal number of the local port that is forwarded to the remote port
+#' (that the RStudio server is using on the remote node).  This number may be the same
+#' as portRemote.
+#' @param portNetworkManager port number of port used for communcations with the network manager.
+#' @param timeout socket timeout (in seconds).
+#' @param verbose for debugging.
+ppe.connectToRStudio <- function(hostName=NULL,
+                                 userName="ec2-user",
+                                 networkName=NULL,
+                                 pemFile=NULL,
+                                 portPfApp=4470,
+                                 portRemote=8787,
+                                 portLocal=8787,
+                                 portNetworkManager=4461,
+                                 timeout=2,
+                                 verbose=FALSE
+                                 ) {
   
+  # Connect to network manager (launching if needed);
+  ppe.launchNetworkManager(port=portNetworkManager,
+                           timeout=timeout,verbose=verbose);
+  
+  # Connect to the portforwarding app (launching if needed)
+  launchPortForwardingApp(port=portPfApp,timeout=timeout,verbose=verbose);
+  
+  
+  # Get params from the network manager if needed
+  if ( is.null(hostName) ) {
+    hostName <- ppe.getMasterNodeURL(networkName=networkName); 
+  }
+  
+  if ( is.null(pemFile) ) {
+    pemFile <- sendCmdToNetworkManager(cmdName="getPemFile");
+  }   
+  
+  # Start portforwarding
+  cmd <- createAppCmd(cmdName="startPortForwarding",
+                      c(paste("host",hostName,sep="="),
+                        paste("username",userName,sep="="),
+                        paste("portremote",portRemote,sep="="),
+                        paste("pemfile",pemFile,sep="="),
+                        paste("portlocal",portLocal,sep="=")
+                        ));
+  
+  con.pf <- getConPortForwardingApp();
+  if ( verboseOn() ) print(paste("con to port forwarding app ok?",isGoodCon(con.pf)));
+  
+  key <- paste(userName,"@",hostName,sep="");
+  
+  ret <- sendAppCmd(con=con.pf,cmd=cmd);
+  if ( verboseOn() ) print(paste("cmd=",cmd," -> ",ret));
+  
+  if ( ret != key ) {
+    stop(ret);
+  }
+  
+  # Launch browser displaying rstudio server  
+  browseURL(url=paste("http://localhost:",portLocal,sep=""));
+  
+  ret
+  
+}
+
+#' Disconnect from RStudio server.
+#'
+#' Disconnects from the RStudio server on the master node of the EC2 network
+#' and terminates port forwarding.
+#'
+#' @author Barnet Wagman
+#' @export
+#'
+#' @param hostName the name of host that is the master node of the 
+#' ppe-ompi network; usually NULL (the default). If this param is NULL 
+#' and the network name
+#' is NULL, the function will attempt to retrieve a connection from the 
+#' connection manager environment.  This param needs to be supplied only
+#' if you have more than one ppe-ompi network running.
+#' @param userName name of user on the master node host under which
+#' R is running.  By default the user name is "ec2-user" and you do not
+#' need to specify this parameter.
+#' @param networkName name of a ppe-ompi network; usually NULL (the default).
+#' If this param is NULL and the hostName is NULL, the function will attempt 
+#' to retrieve a connection from the connection manager environment.  This 
+#' param is only used if you have more than one ppe-ompi network running; int
+#' that case it is an alternative to specifying the hostName.
+#' @param verbose for debugging.
+ppe.disconnectRStudio <- function(hostName=NULL,
+                                  userName="ec2-user",
+                                  networkName=NULL,
+                                  verbose=FALSE) {
+  
+  # Connect to network manager (launching if needed)
+  ppe.launchNetworkManager(verbose=verbose);
+  if ( is.null(hostName) ) {
+    hostName <- ppe.getMasterNodeURL(networkName=networkName); 
+  }
+  
+  con.pf <- getConPortForwardingApp();
+  if ( !isGoodCon(con.pf) ) stop("No connection to the port forwarding app");
+  
+  cmd <- createAppCmd(cmdName="terminatePortForwarding",
+                      c(paste("host",hostName,sep="="),
+                        paste("username",userName,sep="=")                    
+                        ));
+  
+  sendAppCmd(con=con.pf,cmd=cmd)
+  
+}
+
+#' Shut down the port forwarding Java app.
+#'
+#' This function is called by .Last, to it is not usually necessary to use
+#' it directly.
+#'
+#' @author Barnet Wagman
+#' @export
+#'
+#' @param maxWait maxiumum time (in seconds) to wait for a
+#' connection to the port forwarding application.
+ppe.shutdownPortForwardingApp <- function(maxWait=2) {
+  
+  tryCatch(shutdownPortForwardingApp(maxWait=maxWait),
+           error=function(e){},warning=function(w){});
+  
+  tryCatch(rm(conPortForwardingApp,envir=.GlobalEnv),
+           error=function(e){},warning=function(w){});
+}
+
+#' shutdownPortForwardingApp
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+#' @paran maxWait
+shutdownPortForwardingApp <- function(maxWait=2) {
+  
+  con.pf <- getConPortForwardingApp(maxWait=maxWait);
+  if ( !isGoodCon(con.pf) ) {       
+    if ( verboseOn() ) stop("No connection to the portforwarding app")
+    else return;
+  }
+  
+  cmd <- createAppCmd(cmdName="shutdown");
+  
+  if ( verboseOn() ) print(paste("cmd=",cmd));
+  
+  r <- sendAppCmd(con=con.pf,cmd=cmd);  
+  closeEh(con.pf);
+  
+  if ( verboseOn() ) print(paste("cmd -> ",r));
+}
+
+
+#' Shutdowns down all connections and port forwarding.
+#'
+#' @author Barnet Wagman
+#' @export
+.Last <- function() {
+  
+  tryCatch( ppe.shutdownPortForwardingApp(maxWait=1),
+            error=function(e) {},
+            warning=function(w) {}
+            );
+  tryCatch(ppe.shutdown(),
+           error=function(e) {},
+           warning=function(w) {}
+           );
+  tryCatch(ppe.disconnectNetworkManager(),
+           error=function(e) {},
+           warning=function(w) {}
+           );
+}
+
+#' Closes connection to the network manager.
+#'
+#' @author Barnet Wagman
+#' @export
+ppe.disconnectNetworkManager <- function() {
+  
+  if ( exists("conNetworkManager",envir=.GlobalEnv) ) {
+    tryCatch(close(conNetworkManager),
+             error=function(e){},warning=function(w){});
+  }
+  
+  if ( exists("conNetworkManager",envir=.GlobalEnv) ) {
+    tryCatch(rm(conNetworkManager,envir=.GlobalEnv),
+           error=function(e){},warning=function(w){});
+  }
+}
+
+
+#' launchPortForwardingApp
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+#' @param port
+#' @param timeout
+#' @param verbose
+launchPortForwardingApp <- function(port,timeout,verbose) {
+  
+  if ( clientAppIsRunning(port=port,timeout=timeout) ) {
+    con <- getConPortForwardingApp(port = port, timeout = timeout);    
+    if ( !isGoodCon(con) ) stop(paste("Unable to connect to port forwarding app on port=",
+                                      port));
+    if ( verboseOn() ) print(paste("The portforwarding server app is already running, ",
+                                   "port=",port,sep=""));
+    return();
+  }
+  else {    
+    cmd <- paste("java -classpath ",
+                 getClassPath(),
+                 " cloudrmpi.PortForwardingServer",
+                 " port=",port,             
+                 " verbose=",tolower(paste(verbose)),
+                 sep=""
+                 );
+    if ( verboseOn() ) print(paste("cmd=",cmd));
+    
+    system(cmd,intern=FALSE,wait=FALSE,ignore.stderr=TRUE,ignore.stdout=TRUE);
+    if ( verboseOn() ) print(paste("system:",cmd));      
+    
+    tryCatch(con <- getConPortForwardingApp(port=port,timeout=timeout),
+             error=function(e) {},
+             warning=function(w) {}
+             );
+    if ( !isGoodCon(con) ) stop(paste("Unable to connect to port forwarding app on port=",
+                                      port));
+  }
+}
+
+#' Gets existing connection or connects if possible.
+#' If a new connection
+#' is made, it is assign to conPortForwardingApp in .GlobalEnv as
+#' well as being returned.
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+#' @param port
+#' @param timeout
+#' @param maxWait
+getConPortForwardingApp <- function(port,timeout,maxWait=10) {
+  
+  if ( exists(x="conPortForwardingApp",envir=.GlobalEnv) ) {
+    con <- get(x="conPortForwardingApp",envir=.GlobalEnv);
+    if ( isGoodCon(con) ) return(con);
+  }
+  else { # Try to connect
+    con <- connectToPF(port=port,timeout=timeout,maxWait=maxWait);
+    if ( isGoodCon(con) ) {
+      assign(x="conPortForwardingApp",value=con,envir=.GlobalEnv);
+      return(con);
+    }
+    else stop(paste("Cannot connect to the port forwarding app on port=",port));
+  }
+}  
+
+#' connectToPF
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+#' @param port
+#' @param timeout
+#' @param maxWait
+connectToPF <- function(port,timeout,maxWait=10) {
+  tmFin <- Sys.time() + maxWait;
+  while ( tmFin >= Sys.time() ) {
+    con <- tryCatch(conToPF(port=port,timeout=timeout),
+                    error=function(e) {
+                      if ( verboseOn() ) print(paste("conNM error=",e));
+                      closeEh(con);
+                      return(NULL); 
+                    },
+                    warning=function(w) {}
+                    );
+    if ( !is.null(con) && isGoodCon(con) ) {
+      return(con);
+    }
+    else { Sys.sleep(0.1); }
+  }
+  stop(paste("Timed out connecting to the port forwarding app on port=",port));   
+}  
+
+#' Wrapper for socketConnection(), so we can catch exceptions.
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+#' @param port
+#' @param timeout
+conToPF <- function(port,timeout) {
+  socketConnection(port = port, server = FALSE, blocking = TRUE, 
+                   open = "a+", timeout = timeout)
+}
+
+#' testPFMessaging
+#' @keywords internal
+#' @export
+#' @author Barnet Wagman
+testPFMessaging <- function() {
+  con.pf <- getConPortForwardingApp();
+  cmd <- createAppCmd(cmdName="test",params=c("message=The_test_message"));
+  r <- sendAppCmd(con=con.pf,cmd=cmd);
+  print(r);  
+}
+

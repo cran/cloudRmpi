@@ -63,9 +63,16 @@ public class SshCp {
         String filePath = (new File(srcDir,filename) ).getPath();
         File localCopy = new File(tmpDir,filename);
 
+        // Download the file
         SCPClient srcScp = new SCPClient(htc.get(srcHost));
         srcScp.get(filePath, tmpDir.getPath());
+        
+        if ( !localCopy.exists() ) {
+            throw new IOException("SshCp.cp(): local copy " + localCopy.getPath() +
+                    " does not exist; download failed.");
+        }
 
+            // Upload copies
         for ( String rHost : recipientHosts ) {
             cp(htc.get(rHost),srcDir,localCopy);
         }       
@@ -75,5 +82,12 @@ public class SshCp {
                    File localFile) throws IOException {
         SCPClient scp = new SCPClient(connection);
         scp.put(localFile.getPath(),remoteTargetDirectory);
+    }
+    
+    public void download(Connection con, String localDir, String remoteFile) 
+        throws IOException {
+        
+        SCPClient srcScp = new SCPClient(con);
+        srcScp.get(remoteFile,localDir);                
     }
 }

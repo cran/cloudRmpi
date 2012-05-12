@@ -8,7 +8,13 @@ package cloudrmpi;
 import com.amazonaws.services.ec2.model.*;
 import com.norbl.cbp.ppe.*;
 
-/**
+/** This app is used to launch an instance of the {@link ROmpiPPEManager}.  
+ *  It is normally launched by a the ppe.launchNetworkManager() R function.<p>
+ * 
+ *  <b>Ports</b><br>
+ *  This app communicates with the local R session using a port specified in
+ *  argv.  By default it is port <b>4461</b>.  Note that rreval usually uses
+ *  ports <b>4460</b> and <b>4464</b> (see {@link rreval.RReClientApp} for details).
  *
  * @author Barnet Wagman
  */
@@ -41,7 +47,7 @@ public class ROmpiPPEApp extends PPEApp {
     }        
     
     public static void main(String[] argv) throws Exception {
-        ROmpiPPEApp app = new ROmpiPPEApp(argv);
+        ROmpiPPEApp app = new ROmpiPPEApp(argv);        
         app.launchNetworkManager();        
     }
 }

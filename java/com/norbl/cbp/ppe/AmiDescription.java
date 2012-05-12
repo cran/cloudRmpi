@@ -130,43 +130,44 @@ public class AmiDescription {
     }
 
 
-    public static List<String> getSupportedAmiIDs()
-        throws FileNotFoundException, IOException {
-
-//        File dir = new File(UtilEc2.getMpiEc2Home(),Constants.CONFIG_DIR_NAME);
-//        if ( !dir.exists() ) dir.mkdirs();
-//        File f = new File(dir,Constants.AMI_ID_FILENAME);
-        File f = getAmiIDFile();
-      
-        List<String[]> lines = FileUtil.readConfigTypeFile(f,"[ \t]+","#");
-       
-        List<String> names = new ArrayList<String>();
-
-        for ( String[] ln : lines ) {
-            if ( (ln.length >= 1) && (ln[0] != null) &&
-                 (ln[0].trim().length() > 0) )
-            names.add(ln[0]);
-        }
-        return(names);
-    }
+//    public static List<String> getSupportedAmiIDs()
+//        throws FileNotFoundException, IOException {
+//
+////        File dir = new File(UtilEc2.getMpiEc2Home(),Constants.CONFIG_DIR_NAME);
+////        if ( !dir.exists() ) dir.mkdirs();
+////        File f = new File(dir,Constants.AMI_ID_FILENAME);
+//        File f = getAmiIDFile();
+//      
+//        List<String[]> lines = FileUtil.readConfigTypeFile(f,"[ \t]+","#");
+//       
+//        List<String> names = new ArrayList<String>();
+//
+//        for ( String[] ln : lines ) {
+//            if ( (ln.length >= 1) && (ln[0] != null) &&
+//                 (ln[0].trim().length() > 0) )
+//            names.add(ln[0]);
+//        }
+//        return(names);
+//    }
     
-    public static File getAmiIDFile() {
-        File dir = new File(UtilEc2.getMpiEc2Home(),ConstantsEc2.CONFIG_DIR_NAME);
-        if ( !dir.exists() ) dir.mkdirs();
-        return( new File(dir,ConstantsEc2.AMI_ID_FILENAME) );
-    }
+//    public static File getAmiIDFile() {
+//        /* D */ if ( true ) throw new RuntimeException("AmiDescription.getAmiIDFile() (a)");
+//        File dir = new File(UtilEc2.getMpiEc2Home(),ConstantsEc2.CONFIG_DIR_NAME);
+//        if ( !dir.exists() ) dir.mkdirs();
+//        return( new File(dir,ConstantsEc2.AMI_ID_FILENAME) );
+//    }
 
-    public static List<Image> getSupportedImages(AmazonEC2Client ec2Client)
-        throws FileNotFoundException, IOException {
-
-        List<String> amiIDs = getSupportedAmiIDs();
-        List<Image> images = new ArrayList<Image>();
-        for ( String ai : amiIDs ) {
-            Image img = getImageInfo(ec2Client, ai);
-            if ( img != null ) images.add(img);
-        }
-        return(images);
-    }
+//    public static List<Image> getSupportedImages(AmazonEC2Client ec2Client)
+//        throws FileNotFoundException, IOException {
+//
+//        List<String> amiIDs = getSupportedAmiIDs();
+//        List<Image> images = new ArrayList<Image>();
+//        for ( String ai : amiIDs ) {
+//            Image img = getImageInfo(ec2Client, ai);
+//            if ( img != null ) images.add(img);
+//        }
+//        return(images);
+//    }
 
     public static boolean isParavirtual(Image img) {
         return( img.getVirtualizationType().equals("paravirtual") );

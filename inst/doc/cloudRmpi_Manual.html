@@ -11,7 +11,7 @@
 <br>
 <h2 style="text-align: center;">cloudRmpi Manual</h2>
 <br>
-<h4 style="text-align: center;">April 2012, Version 1.1<br>
+<h4 style="text-align: center;">May 2012, Version 1.2<br>
 </h4>
 <h4 style="text-align: center;">Barnet Wagman <a
  href="mailto:bw@norble.com">bw@norbl.com</a></h4>
@@ -21,8 +21,8 @@ parallel processing in R, using MPI on a cloud-based network.&nbsp; It
 currently supports the use of Amazon's EC2 cloud computer service.
 <span style="font-style: italic;">cloudRmpi</span> provides a mechanism
 to launch and manage a cloud-based
-network and to access an R session on the network's master MPI node
-(using the rreval package). <span style="font-style: italic;">cloudRmpi
+network and to access an R session on the network's master MPI node. <span
+ style="font-style: italic;">cloudRmpi
 </span>should
 work
 with
@@ -45,6 +45,22 @@ npRmpi, and snow).<br>
  style="font-weight: bold;">How to
 use </span><span style="font-style: italic; font-weight: normal;"><span
  style="font-weight: bold;">cloudRmpi </span></span></a></li>
+  <ol>
+    <li><a href="#creatingNetwork">Creating a network</a><span
+ style="font-style: italic; font-weight: normal;"><span
+ style="font-weight: bold;"></span></span></li>
+    <li><a href="#usingNetwork">Using the network</a></li>
+    <ol>
+      <li><a href="#rreval">rreval</a></li>
+      <li><a href="#rStudioServer">RStudio</a></li>
+      <li><a href="#ssh">ssh</a><br>
+      </li>
+    </ol>
+    <li><a href="#usingEBS">Using EBS for persistent storage</a><span
+ style="font-style: italic; font-weight: normal;"><span
+ style="font-weight: bold;"><br>
+      </span></span></li>
+  </ol>
   <li><a href="#4._Choosing_an_instance_type">Choosing an instance
 type</a></li>
   <li><a href="#5._Costs">Costs</a><br>
@@ -91,8 +107,18 @@ Open
 MPI
 on
 Amazon's
-cloud computer service,
-EC2.&nbsp; We hope to add support for other vendors' cloud computing
+cloud
+computer
+service,
+EC2.&nbsp;
+We
+hope
+to
+add
+support
+for
+other
+vendors' cloud computing
 services in the near future.<br>
 <br>
 There are two main elements in the <span style="font-style: italic;">cloudRmpi
@@ -137,10 +163,12 @@ remotely
 using
 functions
 in
-the <span style="font-style: italic;">rreval</span>
-package.&nbsp; Using the
-access functions is covered in <a href="#3._How_to_use_cloudRmpi">How
-to use cloudRmpi</a>, below. <br>
+the
+<span style="font-style: italic;">rreval</span>
+package or via <span style="font-style: italic;"></span><a
+ href="http://rstudio.org/">RStudio Server</a>. Using these interfaces
+is covered in <a href="#3._How_to_use_cloudRmpi">How
+to use cloudRmpi</a>, section 1.2, below.<br>
 <br>
 Note that public cloud computing services like EC2 are commercial
 products.&nbsp; See the <a href="#5._Costs">Costs</a> section below
@@ -175,8 +203,8 @@ Environment (build 1.6.0_26-b03)</span><br
 Server VM (build 20.1-b02, mixed mode)</span><br>
     <br>
     </div>
-(Why Java? See the <span style="font-style: italic;"><a>Architecture</a>
-    </span>section
+(Why Java? See the <span style="font-style: italic;"><a
+ href="#9._Architecture">Architecture</a> </span>section
 below.)<br>
 &nbsp; </li>
   <li>An <span class="normal_link "><a href="http://aws.amazon.com/">AWS</a>
@@ -220,11 +248,22 @@ the
 
 
 
+
+
+
+
+
+
+
+
+
+
       <a href="https://console.aws.amazon.com/ec2/home">AWS
 Management
 Console</a>
 (EC2 tab, NETWORK &amp; SECURITY -&gt; Key Pair). You will need the key
-pair name the first time you use <span style="font-style: italic;">cloudRmpi</span>.</span><br>
+pair file and the keypair name the first time you use <span
+ style="font-style: italic;">cloudRmpi</span>.</span><br>
       <span class="normal_link">&nbsp; </span></li>
     <li><span class="normal_link">Get
 the following strings from
@@ -248,8 +287,11 @@ Key'&nbsp; are in the&nbsp; 'Access Credentials' section, in the
 </div>
 <br>
 <h3><a name="3._How_to_use_cloudRmpi"></a>3. How to use cloudRmpi</h3>
-<h4 style="text-decoration: underline;">3.1 Creating a network</h4>
-<span style="font-weight: bold;">3.1.1 Launch the ec2 network manager</span><br>
+<h4 style="text-decoration: underline;"><a name="creatingNetwork"></a>3.1
+Creating
+a
+network</h4>
+<span style="font-weight: bold;">3.1.1 Launch the EC2 network manager</span><br>
 <br>
 In a local R session<br>
 <br>
@@ -269,7 +311,7 @@ time time you launch the network manager</span><br>
 Required parameters<br>
 <br>
 </span>You'll need to supply some
-values that are required to launch ec2 instances.&nbsp; From the top
+values that are required to launch EC2 instances.&nbsp; From the top
 menu bar, use <span style="font-family: monospace;">Edit -&gt; EC2
 parameters</span>, i.e.<br>
 <br>
@@ -300,8 +342,8 @@ billing authorization</span><br>
 We charge $0.03 per hour per instance for use of our most recent
 machine images (AMIs).&nbsp; This is billed through Amazon but requires
 separate authorization.&nbsp; For details and&nbsp; to authorize
-billling, select <span style="font-family: monospace;">Account -&gt;
-Authorize instance billing</span> from top menubar of the main network
+billing, select <span style="font-family: monospace;">Account -&gt;
+Authorize instance billing</span> from top menu bar of the main network
 manager<span style="font-style: italic;"> </span>window.<br>
 <br>
 <br>
@@ -309,7 +351,7 @@ manager<span style="font-style: italic;"> </span>window.<br>
 <br>
 If you access the internet though a proxy server, you <span
  style="font-style: italic;">may</span> need to set some Amazon client
-configuration parameters before you can launch ec2 instances.&nbsp; You
+configuration parameters before you can launch EC2 instances.&nbsp; You
 can set any of these parameters via <span
  style="font-family: monospace;">Edit -&gt; AWS client parameters</span>
 in top menu bar of the<span style="font-style: italic;"> </span>main<span
@@ -327,7 +369,7 @@ of these parameters.&nbsp; <br>
 <br>
 <div style="margin-left: 40px;"><img
  style="width: 629px; height: 205px;" alt=""
- src="../../../cbp_201203/documents/doc/ppe-ompi/ec2_man_create_network_mi_cropped.png"><br>
+ src="ec2_man_create_network_mi_cropped.png"><br>
 </div>
 <br>
 <span style="text-decoration: underline;"><br>
@@ -380,7 +422,7 @@ and can be launched in any availability zone within that region.)<br>
 <br>
 <div style="margin-left: 40px;"><img
  style="width: 800px; height: 246px;" alt=""
- src="../../../cbp_201203/documents/doc/ppe-ompi/network_spec_gui_bot.png"><br>
+ src="network_spec_gui_bot.png"><br>
 </div>
 <br>
 <span style="text-decoration: underline;">Specify the security group</span><br>
@@ -421,7 +463,8 @@ instances<br>
 network's&nbsp; specification
 before it's launched.<br>
 <br>
-<h4 style="text-decoration: underline;">3.2 Using the network</h4>
+<h4 style="text-decoration: underline;"><a name="usingNetwork"></a>3.2
+Using the network</h4>
 <span style="text-decoration: underline;"></span>The network is ready
 for use when its status is "running":<br>
 <br>
@@ -435,10 +478,12 @@ Note that Amazon tools (such as the <a
  href="https://aws.amazon.com/console/">Amazon Management Console</a>)
 will show
 your instances with status 'running' before the EC2 network manager
-does . AWS's monitoring lists instances as 'running' as soon as they
+does.&nbsp; AWS's monitoring lists instances as 'running' as soon as
+they
 are
 launched, even before the operating system has finished booting. After
-launching a network, network manager<span style="font-style: italic;"> </span>waits
+launching a network, the network manager<span
+ style="font-style: italic;"> </span>waits
 for
 the
 operating
@@ -472,6 +517,20 @@ want to use the Amazon Management Console to monitor this - watch for
 instances that get 'stuck' with "Status Checks" equal to "initializing
 ...".&nbsp; If an instance does not respond, after ten minutes you'll
 be given the option of terminating it and proceeding.<br>
+<br>
+There are three mechanisms for using R on the network: <a
+ href="#rreval"><span style="font-style: italic;">rreval</span>,</a> <span
+ style="font-style: italic;"><a href="http://rstudio.org/">RStudio
+Server</a></span>, and a command line R
+session in ssh.<br>
+<br>
+<a name="rreval"></a><span style="font-weight: bold;">3.2.1 Remote R
+Evaluator (rreval)</span><br style="font-weight: bold;">
+<br>
+<a style="font-style: italic;"
+ href="http://norbl.com/rreval/rreval.html">rreval</a> is a means for
+evaluating R expressions on a remote system from within a local R
+session.&nbsp; <br>
 <br>
 Connect to an R session running on the master node of the network:<br>
 <br>
@@ -532,7 +591,9 @@ To upload an object<br>
 (To move large objects, you may want to use the scp transfer functions,
 <span style="font-family: monospace;">scpUpload()</span> and<br>
 <span style="font-family: monospace;">scpDownload()</span>; see the
-package documentation for details.)<br>
+package documentation for details. Note that your R session is owned by
+user ec2-user and initially the R session's working directory is
+/home/ec2-user.)<br>
 <br>
 You can evaluate any expression in the remote session, including things
 like<br>
@@ -593,29 +654,115 @@ you terminate them.&nbsp; You can also terminate your network with <span
  style="font-family: monospace;">ppe.terminateNetwork()</span> or with
 the <a href="https://aws.amazon.com/console/">Amazon Management Console</a>.<br>
 <br>
-<h4 style="text-decoration: underline;">3.3 Accessing the network with
-ssh</h4>
-Alternatively, you can access your ec2 network via ssh.&nbsp; EC2
-instances are accessible using you RSA key (but not via password). E.g.<br>
+<h4 style="text-decoration: underline;"><a name="rStudioServer"></a>3.2.2
+RStudio
+Server<br>
+</h4>
+<a style="font-style: italic;" href="http://rstudio.org/">RStudio</a>&nbsp;is
+an
+IDE-like
+interface
+for
+R.&nbsp;
+The
+server
+version, which is used through a browser, is
+available on some <a
+ href="http://norbl.s3-website-us-east-1.amazonaws.com/Machine_image"><span
+ style="font-style: italic;">cloudRmpi</span> AMIs</a>.<br>
+<br>
+To connect to an R session on the master node of an EC2 network via
+RStudio:<br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">ppe.connectToRStudio()</span><br>
+</div>
+<br>
+This functions creates a connection to the master node via ssh port
+forwarding (using your RSA key for authorization).&nbsp; It then
+launches your default browser displaying an RStudio server session:<br>
+<br>
+<div style="margin-left: 40px;"><img
+ style="width: 635px; height: 616px;" alt="" src="rsuLogin.png"><br>
+</div>
+<br>
+<br>
+<span style="font-weight: bold;">Login with Username=rsu, password=rsu</span>.&nbsp;
+<br>
+<br>
+Despite appearances, this is actually quite secure.&nbsp; Access to the
+remote
+host is via ssh, using your RSA keypair for authorization.&nbsp; (This
+is the standard method used for controlling access to EC2 instances -
+see <a href="#6._Security">Security</a> for details). The RStudio
+login is superflous (but it proved impossible to disable).&nbsp; After
+login, your browser will display an RStudio R session<br>
+<br>
+<br>
+<div style="margin-left: 40px;"><img
+ style="width: 837px; height: 524px;" alt="" src="rsuSession.png"><br>
+</div>
+<span style="font-weight: bold;"></span><br>
+<br>
+Note that in the RStudio session, you are logged in as user 'rsu' and
+initially
+the working directory is /home/rsu.&nbsp; Due to constraints imposed by
+the ssh and RStudio login mechanisms, as user rsu you will not be able
+to access the /home/ec2-user, the home dirctory of user
+'ec2-user'.&nbsp; All ssh access to the system is really via ec2-user.
+If you want connect to the system via a standard ssh session, you must
+do so as ec2-user.<br>
+<br>
+Both RStudio and the ppe network manager provide shell access to the
+host. Once you have shell access you can use su or sudo - neither
+require
+passwords.<br>
+<br>
+When you done using the network, close the connection with <br>
+<br>
+<div style="margin-left: 40px;"><span style="font-family: monospace;">ppe.disconnectRStudio()</span><br>
+</div>
+<span class="Apple-style-span"
+ style="border-collapse: separate; color: rgb(0, 0, 0); font-family: Arial; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; font-size: medium;"><span
+ class="Apple-style-span"
+ style="font-family: Monospace; font-size: 13px; line-height: 15px; white-space: pre-wrap;"></span></span><br>
+and, more importantly, terminate the network using the application
+manager<br>
+<div style="margin-left: 40px;"><img
+ style="width: 436px; height: 126px;" alt=""
+ src="terminate_reboot_detail.png"><br>
+</div>
+<br>
+<br>
+Remember that Amazon will be charging you for your EC2 instances until
+you terminate them.&nbsp; You can also terminate your network with <span
+ style="font-family: monospace;">ppe.terminateNetwork()</span> or with
+the <a href="https://aws.amazon.com/console/">Amazon Management Console</a>.<br>
+<br>
+<br>
+<h4 style="text-decoration: underline;"><a name="ssh"></a>3.2.3 ssh</h4>
+You can access your EC2 network via ssh.&nbsp; EC2
+instances are accessible using your RSA key (but not via password). E.g.<br>
 <br>
 <div style="margin-left: 40px;"><span style="font-family: monospace;">ssh
 -i
 your_keypair_file.pem
-ec2-user@ec2-174-129-172-112.compute-1.amazon.com</span><br>
+ec2-user@ec2-123-123-123-123.compute-1.amazon.com</span><br>
 </div>
 <br>
-where <span style="font-family: monospace;">ec2-174-129-172-112.compute-1.amazon.com
-</span>is the URL of the network's master node.&nbsp; (You can get the
+where <span style="font-family: monospace;">ec2-123-123-123-123.compute-1.amazon.com
+</span>is the URL of the network's master node (which of course will be
+different every time you create a network.) You can get the
 master node's URL from the network manager or with the R function <span
  style="font-family: monospace;">ppe.getMasterNodeURL(...)</span>. See
 the <span style="font-family: monospace;">cloudRmpi </span>package
-documentation for details.)<br>
+documentation for details.<br>
 <br>
 Once you've ssh'd into the master node you can start a standard R
 session from the command line.<br>
 <br>
 <br>
-<span style="font-weight: bold; text-decoration: underline;">3.4 Using
+<a name="usingEBS"></a><br>
+<span style="font-weight: bold; text-decoration: underline;">3.3 Using
 EBS
 for
 persistent storage</span><br>
@@ -639,7 +786,7 @@ do not need to have any instances running to create volumes.<br>
 To use an EBS volume with a specific EC2 instance, you must 'attach' it
 to the volume and then mount&nbsp; it (like any other Unix
 volume).&nbsp; You can get a list of your EBS volumes and their
-statuses from the ec2 network manager i.e.<br>
+statuses from the EC2 network manager i.e.<br>
 <br>
 <div style="margin-left: 40px;"><img
  style="width: 367px; height: 133px;" alt=""
@@ -691,6 +838,10 @@ mount
 See <a
  href="http://docs.amazonwebservices.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html">Amazon's
 documentation</a> for details.<br>
+<br>
+Note that <span style="font-style: italic;">cloudRmpi</span> AMIs are
+configured to allow the use of <span style="font-family: monospace;">sudo</span>
+and <span style="font-family: monospace;">su</span> without a password.<br>
 <br>
 Note that an EBS volume resides in what Amazon terms an <span
  style="text-decoration: underline;"><span
@@ -762,7 +913,9 @@ cluster
 placement
 groups
 are
-intended for hpc.<br>
+intended
+for
+hpc.<br>
 <br>
 <h3><a name="5._Costs"></a>5. Costs</h3>
 There are no sunk costs when using EC2 (or in creating or maintaining
@@ -777,7 +930,7 @@ Pricing</a>), although transfer charges are usually small compared to
 instance
 charges.&nbsp; There is no charge for data tranfers between instances
 in the same 'region'.<span class="normal_link"> In addition, we now
-charge $0.03 </span>for use of our most recent
+charge $0.03/instance/hour </span>for use of our newer
 machine images (AMIs).&nbsp; <br>
 <span class="normal_link"><br>
 </span>
@@ -934,8 +1087,16 @@ ec2-user@ec2-123-456-789-123.compute-1.amazon.com<br>
 </span></div>
 and similarly with <span style="font-family: monospace;">scp</span>. <br>
 <br>
-<span style="font-style: italic;"></span>Communications between your
-local R session and the R session on the master node of the EC2 network
+<span style="font-style: italic;"></span>When you use&nbsp;<a
+ style="font-style: italic;" href="http://norbl.com/rreval/rreval.html">rreval</a>,
+communications
+between
+your
+local
+R
+session
+and
+the R session on the master node of the EC2 network
 go through a pair of java apps, one on the local system and the other
 on the network master node (see <a href="#9._Architecture">Architecture</a>
 for details).&nbsp; These java apps perform socket level communication
@@ -946,6 +1107,25 @@ via ssh port forwarding.&nbsp; So when you use <span
 the remote R session, communications is via ssh.<br
  style="font-family: monospace;">
 <br>
+When you use <a style="font-style: italic;" href="http://rstudio.org/">RStudio</a>,
+communications
+is
+also
+via
+ssh
+port
+forwarding. &nbsp; A java app
+(launched by the <span style="font-style: italic;">cloudRmpi</span>
+package function <span style="font-family: monospace;">ppe.connectToRStudio()</span>)
+establishes
+ssh
+port
+forwarding
+to
+the
+master node.&nbsp; Your browser
+then accesses the remote RStudio server via <span
+ style="font-family: monospace;">http://localhost:8787</span>.<br>
 <br>
 <h3><a name="7._Dependencies"></a>7. Dependencies<br>
 </h3>
@@ -955,6 +1135,16 @@ packages, <span style="font-style: italic;">digest</span> and <span
 third-party packages:<br>
 <ul>
   <li><a href="http://aws.amazon.com/sdkforjava/">AWS SDK for Java</a>&nbsp;
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -998,14 +1188,21 @@ Core</a></li>
   <li><a href="http://aws.amazon.com/code/Amazon-FPS/5090796688019801">Amazon
 FPS
 Java
-Library</a><span style="font-style: italic;"></span></li>
+Library</a></li>
+  <li><a href="http://rstudio.org/">RStudio Server</a>&nbsp; Note that
+the <span style="font-style: italic;">cloudRmpi</span> package does
+not actually contain any part of RStudio.&nbsp; RStudio Server is
+installed on some cloudRmpi AMIs.&nbsp; RStudio's "object code" is
+"conveyed" when you use it.&nbsp; This is consistent with RStudio's
+license, GNU Affero GPL, Version 3.<br>
+  </li>
 </ul>
 See the the <span style="font-family: monospace;">third-party
-</span>directory in the <span style="font-style: italic;">cloudRmpiJars
+</span>directory in the <span style="font-style: italic;">cloudRmpi
 </span>package
 for
 these
-packages' licenses.<br>
+packages' licenses and links for obtaining them.<br>
 <br>
 We have previously released the network management application in the <a
  href="http://norbl.com/ppe-ompi.html">ppe-ompi</a> project (which is
@@ -1015,15 +1212,16 @@ released under GPL 3.0).<br>
 <h3><a name="8._Machine_images"></a>8. Machine images</h3>
 An EC2 network consists of one or more hosts (termed <a
  href="http://aws.amazon.com/ec2/instance-types/">instances</a> by
-Amazon) running a virtualized operating system termed an <a
+Amazon) running virtualized operating systems termed an <a
  href="http://aws.amazon.com/amis/">Amazon Machine
-Images</a> (AMI).&nbsp; In addition to the operating system, an AMI can
+Images</a> (AMIs).&nbsp; In addition to the operating system, an AMI
+can
 contain application software and can be configured to launch
 applications when booted.<br>
 <br>
 <a href="http://aws.amazon.com/amis/">Amazon Machine Images</a> (AMIs)
-with Open MPI and R installed are listed <a
- href="http://norbl.s3-website-us-east-1.amazonaws.com/Machine_images_cloudrmpi.html">here</a><br>
+with Open MPI and R installed are listed <a style="font-weight: bold;"
+ href="http://norbl.s3-website-us-east-1.amazonaws.com/Machine_images_cloudrmpi.html">here</a>.<br>
 <span style="font-style: italic;"></span><br>
 To use a <a href="http://aws.amazon.com/ec2/hpc-applications/">cluster
 placement
@@ -1036,7 +1234,9 @@ function <span style="font-family: monospace;">rreServer()</span> when
 booted.&nbsp; I.e. they are ready to be <span
  style="font-style: italic;"></span>to accept a connection from <span
  style="font-family: monospace;">ppe.startClient()</span> as soon as
-the boot process is complete.<br>
+the boot process is complete. AMIs that contain <span
+ style="font-style: italic;">RStudio Server</span> are configured to
+launch it at boot time as well.<br>
 <br>
 <span class="normal_link"></span><br>
 <h3><a name="9._Architecture"></a>9. Architecture</h3>
@@ -1046,7 +1246,7 @@ evaluating expressions in an R session running on the network's master
 MPI node.<br>
 <br>
 <h4>Network Manager</h4>
-The network manager is java app that is launched on the local systemby
+The network manager is java app that is launched on the local system by
 the function <span style="font-family: monospace;">ppe.launchNetworkManager().&nbsp;
 </span>Communications between the R session and the network manager are
 via a socket.&nbsp; The network manager is always launched on the same
@@ -1083,14 +1283,16 @@ master.</li>
 &nbsp; </li>
 </ul>
 <h4>Remote evaluation, client-server communications</h4>
-<span style="font-style: italic;">cloudRmpi</span> uses the <span
- style="font-style: italic;">rreval</span> package to access an R
+The <a style="font-style: italic;"
+ href="http://norbl.com/rreval/rreval.html">rreval</a><span
+ style="font-style: italic;"></span> package can be used to access an R
 session on the master MPI node of the EC2 network.&nbsp; <span
  style="font-style: italic;">cloudRmpi </span>has some functions (such
 as <span style="font-family: monospace;">ppe.startClient()</span>)
 that are&nbsp; essentially wrappers for <span
  style="font-style: italic;">rreval </span>functions; they make using <span
- style="font-family: monospace;">rreval </span>on with an EC2 network
+ style="font-style: italic;">rreval</span><span
+ style="font-family: monospace;"> </span>on with an EC2 network
 more convenient, but the underlying code is the same.<br>
 <br>
 <span style="font-style: italic;">rreval</span>
@@ -1152,7 +1354,21 @@ an R session and a java app are <span style="font-style: italic;">en
 clair.</span>&nbsp; These are local socket communications so security
 should not an issue.<br>
 <br>
+As of <span style="font-style: italic;">cloudRmpi </span>1.2, some
+AMIs also have <a style="font-style: italic;"
+ href="http://rstudio.org/">RStudio Server</a> installed, which is a
+browser accessible IDE-type interface to R.&nbsp; <span
+ style="font-style: italic;">cloudRmpi </span>has functions for
+connecting to an instance of <span style="font-style: italic;">RStudio
+Server&nbsp; </span>running on the master node of an EC2 network via
+ssh port forwarding.&nbsp; See&nbsp;<a href="#rStudioServer"></a><a
+ href="#rStudioServer">Using the network: RStudio Server</a> and <a
+ href="#6._Security">Security</a> for details.<span
+ style="text-decoration: underline;"></span><span
+ style="text-decoration: underline;"></span><span
+ style="text-decoration: underline;"><br>
 <br>
+</span><br>
 <h3><a name="10._Handling_problems"></a>10. Handling problems</h3>
 Handling errors in a parallel processing environment can be messy, and
 R parallel processing packages are no exception.&nbsp; For example, if

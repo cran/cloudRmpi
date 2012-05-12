@@ -168,6 +168,8 @@ public class NetworkSpecGui implements ActionListener {
         SecurityGroupChoice sg = (SecurityGroupChoice)
                             securityGroupChoices.getSelected();
         if ( sg != null ) s.securityGroupName = (String) sg.getValue();
+        if ( s.securityGroupName.equals("default") )
+            s.securityGroupName = null;        
 
         KeyPairChoice kp = (KeyPairChoice) keyPairsChoices.getSelected();
         if ( kp != null ) s.keyName = (String) kp.getValue();
@@ -201,9 +203,9 @@ public class NetworkSpecGui implements ActionListener {
         actionChoiceHt = new HashMap<String, Choice>();
     
         instanceTypeChoices = new ChoiceSet();
-        /* D */ System.out.println("# NetworkSpecGui # " +
-                    "ppeMan? " + (ppeManager == null) + " " +
-                " instanceTypes? " + (ppeManager.instanceTypes == null));
+//        /* D */ System.out.println("# NetworkSpecGui # " +
+//                    "ppeMan? " + (ppeManager == null) + " " +
+//                " instanceTypes? " + (ppeManager.instanceTypes == null));
         for ( Ec2InstanceType eit : ppeManager.instanceTypes ) {                             
             instanceTypeChoices.add(register(new InstanceTypeChoice(eit),
                                              instanceTypeChoices));

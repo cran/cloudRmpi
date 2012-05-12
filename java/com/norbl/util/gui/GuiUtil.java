@@ -30,15 +30,38 @@ import java.io.*;
 public class GuiUtil {
 
     public static void exceptionMessage(Throwable x) {
-
+                
         JOptionPane.showMessageDialog(
              getIconFrame(),
-            "<html><div width=400>" + 
-                x.toString() + "<br><br>" +
-                stackTraceToString(x.getStackTrace()) +
-            "</div></html>",
+             throwableToHtml(x),
+//            "<html><div width=400>" + 
+//                x.toString() + "<br><br>" +
+//                stackTraceToString(x.getStackTrace()) +
+//            "</div></html>",
             "Exception",
              JOptionPane.ERROR_MESSAGE);
+    }
+    
+    private static String throwableToHtml(Throwable x) {
+        
+        StringBuilder s = new StringBuilder();
+        
+        s.append("<html><div width=400> ");
+        
+        s.append(x.toString() + "<br><br>" +
+                stackTraceToString(x.getStackTrace()));
+        
+        Throwable c = x.getCause();
+        if ( c != null ) {
+            s.append("<br><br><hr style=\"width: 100%; height: 2px;\"><br><br>");
+            s.append(c.toString() + "<br><br>" +
+                stackTraceToString(c.getStackTrace()));
+            s.append("<br>");            
+        }
+        
+        s.append("</div></html>");
+        
+        return(s.toString());
     }
     
     public static void exceptionMessageOnly(Throwable x) {

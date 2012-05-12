@@ -21,6 +21,8 @@ abstract public class PPEApp {
     protected PPEManager ppeManager;
     NetworkManagerFrame nmFrame;
     
+    private static boolean VERBOSE = false;
+    
     public PPEApp(String[] argv) throws Exception  {
         this.argv = argv;
         System.setProperty("org.apache.commons.logging.Log",
@@ -68,4 +70,11 @@ abstract public class PPEApp {
 
     abstract protected PPEManager createPPEManager() throws Exception ;
     abstract protected String getTitle();
+    
+    public static void verbose(String s) {
+        if ( VERBOSE ) System.out.println(s); 
+    }
+    public static void verbose(Throwable s) {
+        if ( VERBOSE ) System.out.println(s); 
+    }
 }

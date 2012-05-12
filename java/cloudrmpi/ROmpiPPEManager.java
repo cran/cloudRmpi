@@ -37,8 +37,8 @@ import java.io.*;
  */
 public class ROmpiPPEManager extends OmpiPPEManager {
     
-    public static final Class R_AMI_CHOICE_CLASS = AmiChoiceR.class;
-    public static final Class R_NSG_FRAME_CLASS = NSGFrameR.class;
+    public static final Class R_AMI_CHOICE_CLASS = AmiChoiceU.class;
+    public static final Class R_NSG_FRAME_CLASS = NSGFrameU.class;
     
     public static String PORT_LABEL = "ppeManagerPort";
     public static int PORT_DEFAULT = 4461;
@@ -350,4 +350,12 @@ public class ROmpiPPEManager extends OmpiPPEManager {
                     ni.getNetworkName());
         }
     }
+    
+     protected String getAmiWebpageUrl() {
+        return("https://s3.amazonaws.com/norbl/Machine_images_cloudrmpi.html");
+    }
+     
+    protected String getManualWebpageUrl() {
+        return("http://norbl.com/cloudrmpi/cloudRmpi_Manual.html");
+    } 
 }

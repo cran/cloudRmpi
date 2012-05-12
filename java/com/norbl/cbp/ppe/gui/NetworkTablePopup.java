@@ -20,6 +20,7 @@
 package com.norbl.cbp.ppe.gui;
 
 import com.norbl.cbp.ppe.*;
+import com.norbl.cbp.ppe.ompi.*;
 import com.norbl.util.*;
 import java.awt.event.*;
 import java.util.*;
@@ -96,6 +97,7 @@ public class NetworkTablePopup {
                
                 miSpecs.add(new MiSpec(PPEManager.Op.rebootInstances));
                 miSpecs.add(new MiSpec(PPEManager.Op.terminateInstances));
+                miSpecs.add(new MiSpec(PPEManager.Op.reconfigInstances));
                 
                     // Now we can create the popup in the awt event dispatching thread
                 java.awt.EventQueue.invokeLater(new Runnable() {
@@ -131,7 +133,24 @@ public class NetworkTablePopup {
            
             ac = new ActionCommandNetworkManager(op.toString(), ni.getNetworkID());
             txt = op.textMi;
-            enable = ni.isRunning();
+            
+            if ( PPEManager.Op.reconfigInstances.equals(op) ) {            
+                Services s = ni.getServices(); 
+                if ( s instanceof OmpiConfigServices ) {
+                    NetworkSpec ns = ((OmpiConfigServices) s).getNetworkSpec();
+                    if ( ns != null ) {
+                        enable = ni.isRunning() || ni.isServicesNotRunning();
+                    }
+                    else enable = false;
+                }
+            }
+            else if ( PPEManager.Op.rebootInstances.equals(op) ) {
+                enable = ni.isRunning() || ni.isServicesNotRunning();
+            }            
+            else if ( PPEManager.Op.terminateInstances.equals(op) ) {
+                enable = ni.isRunning() || ni.isServicesNotRunning();
+            }
+            else enable = false;
         }
 
         JMenuItem createMenuItem() {

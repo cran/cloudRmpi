@@ -19,6 +19,7 @@
 
 package com.norbl.util;
 
+import com.norbl.util.gui.*;
 import java.io.*;
 import java.util.*;
 
@@ -138,5 +139,29 @@ public class FileUtil {
         }
         while (bu.exists());
         return(bu);
+    }
+    
+    public static int write(File file, String s) {
+        
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(file);
+            fw.write(s);
+            fw.flush();
+            return(s.length());
+        }
+        catch(Exception xxx) {
+            GuiUtil.exceptionMessageOnly(xxx);
+            return(-1);
+        }
+        finally {
+            if ( fw != null ) {
+                try {
+                    fw.flush();
+                    fw.close();
+                }
+                catch(Exception xxx) {}
+            }
+        }        
     }
 }

@@ -73,7 +73,14 @@ public class InstanceStatus {
     }
 
     public String getPublicDnsName() {
-        return( instance.getPublicDnsName() ); /* D */       
+        return( instance.getPublicDnsName() );      
+    }
+    
+    public String getAvailabilityZone() {
+        try {
+            return( instance.getPlacement().getAvailabilityZone() );
+        }
+        catch(Exception x) { return(" "); }
     }
 
     public String getNetworkID() {
@@ -114,6 +121,11 @@ public class InstanceStatus {
     public boolean isRunning() {
         String s = instance.getState().getName();
         return( s.equals("running")  );
+    }
+    
+    public boolean isTerminated() {
+        String s = instance.getState().getName();
+        return( s.equals("terminated")  );
     }
 
     public static boolean isRunning(Instance ins) {

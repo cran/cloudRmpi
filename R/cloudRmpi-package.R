@@ -3,8 +3,8 @@
 #' \tabular{ll}{
 #' Package: \tab cloudRmpi\cr
 #' Type: \tab Package\cr
-#' Version: \tab 1.1--\cr
-#' Date: \tab 2012-04-18\cr
+#' Version: \tab 1.2--\cr
+#' Date: \tab 2012-05-18\cr
 #' License: \tab GPL (>= 3)\cr
 #' }
 #'

@@ -35,6 +35,10 @@ public class ConstantsEc2 {
     public static String EC2_USERNAME = "ec2-user";
     public static String EC2_USER_HOME_DIR = "/home/" + EC2_USERNAME;
     public static String EC2_USER_SSH_DIR = EC2_USER_HOME_DIR + "/.ssh";
+    
+    public static String RSU_USERNAME = "rsu";
+    public static String RSU_USER_HOME_DIR = "/home/rsu";
+    public static String RSU_USER_SSH_DIR = "/home/rsu/.ssh";
 
     public static String INSTANCE_TYPE_FILENAME = "ec2-instance-types";
     public static String AMI_ID_FILENAME = "mpi-ec2-ami-IDs";

@@ -92,7 +92,11 @@ public class NetworkManagerFrame extends javax.swing.JFrame
         showIDMenu.add(billingIDMI);
         
         setupMI(aboutMI,PPEManager.Op.showAbout);
-        setupMI(exitMI,PPEManager.Op.exit);                            
+        setupMI(exitMI,PPEManager.Op.exit);       
+        
+            // Help menu
+        setupMI(amiHelpMI,PPEManager.Op.showAmiWebpage);
+        setupMI(manualMI,PPEManager.Op.showManualWebpage);
             
             // ------------------------------------------------------
         
@@ -187,6 +191,9 @@ public class NetworkManagerFrame extends javax.swing.JFrame
         authorizeInstanceBillingMI = new javax.swing.JMenuItem();
         cancelAuthorizationMI = new javax.swing.JMenuItem();
         showIDMenu = new javax.swing.JMenu();
+        helpMenu = new javax.swing.JMenu();
+        amiHelpMI = new javax.swing.JMenuItem();
+        manualMI = new javax.swing.JMenuItem();
         aboutMenu = new javax.swing.JMenu();
         aboutMI = new javax.swing.JMenuItem();
         exitMenu = new javax.swing.JMenu();
@@ -288,6 +295,16 @@ public class NetworkManagerFrame extends javax.swing.JFrame
 
         jMenuBar1.add(accountMenu);
 
+        helpMenu.setText("Help");
+
+        amiHelpMI.setText("jMenuItem1");
+        helpMenu.add(amiHelpMI);
+
+        manualMI.setText("jMenuItem1");
+        helpMenu.add(manualMI);
+
+        jMenuBar1.add(helpMenu);
+
         aboutMenu.setText("About");
 
         aboutMI.setText("About");
@@ -339,6 +356,7 @@ public class NetworkManagerFrame extends javax.swing.JFrame
     private javax.swing.JMenuItem aboutMI;
     private javax.swing.JMenu aboutMenu;
     private javax.swing.JMenu accountMenu;
+    private javax.swing.JMenuItem amiHelpMI;
     private javax.swing.JMenuItem authorizeInstanceBillingMI;
     private javax.swing.JMenuItem awsClientParams;
     private javax.swing.JMenuItem cancelAuthorizationMI;
@@ -348,12 +366,14 @@ public class NetworkManagerFrame extends javax.swing.JFrame
     private javax.swing.JMenu editMenu;
     private javax.swing.JMenuItem exitMI;
     private javax.swing.JMenu exitMenu;
+    private javax.swing.JMenu helpMenu;
     private javax.swing.JTabbedPane instanceTableTabPane;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem listEbsVolumesMI;
     private javax.swing.JPanel mainPan;
+    private javax.swing.JMenuItem manualMI;
     private javax.swing.JScrollPane networkScrollPane;
     private javax.swing.JTable networkTable;
     private javax.swing.JMenu networksMenu;

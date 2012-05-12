@@ -28,8 +28,8 @@ public class UtilApps {
     public static void main(String[] argv) throws Exception {
         
         // AMIs
-//        createOmpiAmiPPEsInS3();
-//        createCloudRmpiAmiPPEsInS3();
+        createOmpiAmiPPEsInS3();
+        createCloudRmpiAmiPPEsInS3();
                 
                
         // Instance types        
@@ -39,7 +39,7 @@ public class UtilApps {
 //        for ( Ec2InstanceType eit : eits ) System.out.println(eit);
         
         // View amis
-//        viewAmis(ConstantsPPE.OMPI_AMI_GROUP);
+        viewAmis(ConstantsPPE.OMPI_AMI_GROUP);
         viewAmis(ConstantsPPE.CLOUDRMPI_AMI_GROUP);
         
 //        ParamHtPPE ph = new ParamHtPPE(new String[] {});
@@ -76,13 +76,16 @@ public class UtilApps {
         S3Access s3a = new S3Access(s3Client);
         
         List<AmiPPE> zcs = AmiPPE.createAmiPPEs(ec2Client,
-                            new String[] { "ami-cc629ba5", "ami-eb478182" },
+                            new String[] { "ami-cc629ba5", 
+                                           "ami-eb478182" },
                             0.0);
         
         List<AmiPPE> cs = AmiPPE.createAmiPPEs(ec2Client,
                             new String[] { 
             "ami-7039e219", //  ppe-ompi v1.2 pv   
-            "ami-3237ec5b"  //  ppe-ompi v1.2 hvm
+            "ami-3237ec5b",  //  ppe-ompi v1.2 hvm
+            "ami-26a7034f", // ppe-ompi v1.2a pv
+            "ami-4ca00425"  // ppe-ompi v1.2a hvm
                             },
                             ConstantsUM.PRICE_PIPH_DOUBLE);
         
@@ -105,18 +108,19 @@ public class UtilApps {
         S3Access s3a = new S3Access(s3Client);
         
         List<AmiPPE> zcs = AmiPPE.createAmiPPEs(ec2Client,
-                                        new String[] { 
-            "ami-5608d73f", 
-            "ami-58bb6431"
-                                         },
-                            0.0);                
+             new String[] { 
+                "ami-5608d73f", 
+                "ami-58bb6431"
+             },
+             0.0
+             );                
         
         List<AmiPPE> cs = AmiPPE.createAmiPPEs(ec2Client,
-                            new String[] { 
-            "ami-5a04df33",  // cloudRmpi pv 1.1       
-            "ami-dc30ebb5"   // cloudRmpi hmv 1.1                      
-                            },
-                            ConstantsUM.PRICE_PIPH_DOUBLE);
+            new String[] {
+                "ami-90993df9", // cloudRmpi 1.2 hvm
+                "ami-e48f2b8d"  // cloudRmpi 1.2 pv                              
+            },
+            ConstantsUM.PRICE_PIPH_DOUBLE);
         
         List<AmiPPE> amis = new ArrayList<AmiPPE>();
         amis.addAll(zcs);
@@ -138,6 +142,7 @@ public class UtilApps {
         System.out.println("n ami=" + amis.size());
         for ( AmiPPE ami : amis ) {
             System.out.println(ami.amiID  );
+            System.out.println("NAME SHORT: " + ami.getTagVal(AmiPPE.ATag.nameShort));
             for ( Iterator<String> it = ami.tags.keySet().iterator(); it.hasNext(); ) {
                 String key = it.next();
                 System.out.println("    " + key + "=" + ami.tags.get(key));

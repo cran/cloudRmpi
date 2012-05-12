@@ -343,6 +343,29 @@ public class Ec2Wrangler {
         }
     }
 
+        /** Blocks until all instances in ni have status terminated.
+         * 
+         * @param ni 
+         */
+    public void waitForInstancesToTerminate(NetworkInfo ni) {
+        
+        if ( ni == null ) return;
+        
+        for (;;) {
+            
+            List<InstanceStatus> insL = getInstances(ni);
+            if ( (insL == null) || (insL.size() < 1) ) return;
+            int nNotTerm = 0;
+            for ( InstanceStatus ins : insL ) {
+                if ( !ins.isTerminated() ) ++nNotTerm;
+            }
+            if ( nNotTerm == 0 ) return;
+            else {               
+                try { Thread.sleep(1000L * 2L); } catch(InterruptedException ux) {}                                    
+            }
+        }       
+    }
+    
         /** Blocks until all instances in <tt>rr</tt> have ec2 status
          *  'running'.
          * @param rr
@@ -583,8 +606,15 @@ public class Ec2Wrangler {
         List<String> securityGroups =
             sgFactory.getOneTimeSecurityGroups(ni);
 
+        
+            // We cannot delete the one time security group until
+            // instances using it have terminate.
         TerminateInstancesResult r = terminateInstances(iids);
-
+                        
+            // We cannot delete the one time security group until
+            // instances using it have terminate.    
+        waitForInstancesToTerminate(ni);
+      
         for ( String sg : securityGroups ) {
             sgFactory.deleteOneTimeSecurityGroup(sg);
         }
@@ -950,8 +980,8 @@ public class Ec2Wrangler {
 
         for ( PlacementGroup pg : r.getPlacementGroups() ) {
             if ( pg.getGroupName().equals(name) ) {
-                /* D */ System.out.println("Ec2W: found extant placement " +
-                            " group=" + name);
+//                /* D */ System.out.println("Ec2W: found extant placement " +
+//                            " group=" + name);
                 return;
             }
         }
@@ -961,8 +991,8 @@ public class Ec2Wrangler {
         req.setStrategy("cluster");
 
         ec2Client.createPlacementGroup(req);
-        /* D */ System.out.println("Ec2W: create placement group name=" +
-                        name);
+//        /* D */ System.out.println("Ec2W: create placement group name=" +
+//                        name);
     }
 
         /** If the cluster group was not specified by the user, then

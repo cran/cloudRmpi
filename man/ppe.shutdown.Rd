@@ -5,8 +5,10 @@
   ppe.shutdown()
 }
 \description{
-  Close all open connections to master nodes and terminates
-  the ppe-ompi access application.
+  Close all open connections to master nodes,terminates the
+  ppe-ompi access application, terminates port forwarding
+  to RStudio Server, and disconnects from the network
+  manager.
 }
 \note{
   This function does not terminate ec2 instances.

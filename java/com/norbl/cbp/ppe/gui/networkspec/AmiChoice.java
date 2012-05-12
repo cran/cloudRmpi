@@ -20,7 +20,9 @@
 package com.norbl.cbp.ppe.gui.networkspec;
 
 import com.norbl.cbp.ppe.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import javax.swing.*;
 
 /**
@@ -111,7 +113,11 @@ abstract public class AmiChoice extends Choice {
     abstract public java.awt.Insets getInsets(int iCol);
     
     public JComponent getComponent(int iCol) {      
-        JLabel x = new JLabel( toStringNullSpace(getValue(iCol)) );      
+        JLabel x = new JLabel( toStringNullSpace(getValue(iCol)) );
+        if ( iCol == 1 ) {
+            x.setMinimumSize(new Dimension(150,x.getPreferredSize().height));
+            x.setPreferredSize(new Dimension(150,x.getPreferredSize().height));
+        }
         return(x);
     }
     

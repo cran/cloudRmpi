@@ -250,17 +250,15 @@ public class SshMinimalShell {
         "There is a simple history mechanism: in stdin you can use the up and " +
         "down arrow keys to retrieve commands.<br>" +
         "<br>" +
-        "<b><i>Note</i></b> that the su command will <i>not</i> work in this shell; " +
-        "you must use sudo, e.g." +
-        "<blockquote>" +
-            "sudo fdisk -l" +
-        "</blockquote>" +        
-        "<br>And of course for a <i>real</i> shell you can always connect to any of " +
+        "When you launch this shell, you are logged in as ec2-user, but you " +
+        "can use su or sudo (neither require a password).<br>" +
+        "<br>" +     
+        "And of course for a <i>real</i> shell you can always connect to any of " +
         "your instances with ssh, i.e." +
         "<blockquote>" + 
             "ssh -i &lt;pem file&gt; ec2-user@&lt;Public DNS (hostName)&gt;" +
         "</blockquote>" +
-        "where &lt;pem file&gt; is the local file that contains you keypair." +
+        "where &lt;pem file&gt; is the local file that contains your keypair." +
         "<br><br>" +
         "</div></html>";
     

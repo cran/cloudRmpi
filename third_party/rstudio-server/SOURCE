@@ -1,0 +1,25 @@
+
+RStudio is licensed to you under the AGPLv3, the terms of which are
+included in the file COPYING.
+
+You can obtain the source code for this version of RStudio at:
+
+  https://github.com/rstudio/rstudio/tree/094c4aac84a82d71a2023e0006570f9770e6f919
+
+You can obtain the source code for the latest version of RStudio at:
+
+  https://github.com/rstudio/rstudio/
+
+RStudio for Windows is bundled with a binary copy of GNU DiffUtils. 
+You can obtain the source code for GNU DiffUtils at:
+
+  http://ftp.gnu.org/gnu/diffutils/
+
+RStudio for Windows is bundled with various binaries from the MSYS
+project. You can obtain the source code for MSYS at:
+
+  http://sourceforge.net/projects/mingw/files/MSYS/
+ 
+In the alternate, you may request a copy of the GNU DiffUtils or MSYS
+source code by e-mail to info@rstudio.org.
+

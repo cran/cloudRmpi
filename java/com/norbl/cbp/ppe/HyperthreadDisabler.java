@@ -30,6 +30,7 @@ import java.io.*;
  *  </tt></blockquote> via ssh.
  *
  * @author Barnet Wagman
+ * @deprecated 
  */
 public class HyperthreadDisabler {
 
@@ -37,7 +38,7 @@ public class HyperthreadDisabler {
 
     public HyperthreadDisabler() {
 //        log =  LogFactory.getLog(NearNilLog.class);
-    }
+    }    
 
         /** This method attempts to reduce the number of cpu 'online'
          *  to nCores.
@@ -49,27 +50,43 @@ public class HyperthreadDisabler {
         try {
                 // Get a list of the online cpus and online cpus
             List<Cpu> cpus = findCpus(ssh);
+            PPEApp.verbose("# HyperthreadDisabler # found n cpus=" + cpus.size() + 
+                           " nCores=" + nCores);
             
-            if ( cpus.size() <= nCores ) { // Probably to hyperthreading              
+            if ( cpus.size() <= nCores ) { // Probably no hyperthreading              
                 return(false);
             }
-
-            int nToDisable = cpus.size() - nCores;          
-
+            
             List<Cpu> online = getOnlineCpus(cpus);
-         
+            PPEApp.verbose("# HyperthreadDisabler # N cpu online=" + 
+                            online.size());
+
+            int nAccessible = Math.min(cpus.size(),online.size());
+            
+            int nToDisable = nAccessible - nCores; // cpus.size() - nCores;  
+            
+            PPEApp.verbose("# HyperthreadDisabler # N to disable=" + nToDisable);
+            
+            if ( nToDisable < 1 ) return(false);
+            
+            if ( nToDisable >= online.size() ) {
+                PPEApp.verbose("n to disable=" + nToDisable + " but " +
+                        " n online=" + online.size() + " soo no disabling.");
+                return(false);
+            }
+                      
             Collections.sort(online);
 
                 // We want to disable to highest numbers, so work
                 // through online backwards.
             int idx = online.size() - 1;
-            for ( int i = 0;i < nToDisable; i++ ) {
+            for ( int i = 0; i < nToDisable; i++ ) {
                 disableCpu(ssh,online.get(idx));                
                 --idx;
             }
             return(true);
         }
-        catch(IOException iox) {
+        catch(Exception iox) {
                 // We do not want an exception here to kill the app, so
                 // we'll just print the message.
             ExceptionHandler.display(iox);
@@ -79,8 +96,9 @@ public class HyperthreadDisabler {
 
     List<Cpu> findCpus(SshExec ssh) throws IOException {
 
-        String ns = ssh.exec("sudo ls -1d " +
-            "/sys/devices/system/node/node0/cpu[0123456789]*");       
+        String ns = ssh.execRead("sudo ls -1d " +
+            "/sys/devices/system/node/node0/cpu[0123456789]*",
+            1000L * 10L);       
         String[] nodeLines = ns.trim().split("\n");
 
         List<Cpu> cpus = new ArrayList<Cpu>();
@@ -90,6 +108,8 @@ public class HyperthreadDisabler {
         }
         return(cpus);
     }
+    
+    
 
     List<Cpu> getOnlineCpus(List<Cpu> cpus) {
         List<Cpu> online = new ArrayList<Cpu>();
@@ -100,7 +120,8 @@ public class HyperthreadDisabler {
     }
 
     void disableCpu(SshExec ssh, Cpu cpu) throws IOException {
-        ssh.exec("sudo echo 0 > " + cpu.pathToOnline);
+        ssh.exec("sudo echo 0 > " + cpu.pathToOnline,1000L * 10L);
+        // SUDO FAILS: need to be su
     }
 
         // --------------------------------------
@@ -119,8 +140,9 @@ public class HyperthreadDisabler {
             cpuNumber = Integer.parseInt(ns);
 
             String ons = line + "/online";
-            String isOn = ssh.exec("sudo " +
-                "[ -f " + ons + "] && echo 'YES' || echo 'NO'");
+            String isOn = ssh.execRead("sudo " +
+                "[ -f " + ons + "] && echo 'YES' || echo 'NO'",
+                 1000L * 10L);
             if ( isOn.equals("YES") ) {
                 isOnline = true;
                 pathToOnline = ons;
