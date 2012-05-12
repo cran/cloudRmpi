@@ -60,7 +60,12 @@ public class SshCp {
 
         if ( recipientHosts.size() < 1 ) return;
 
-        String filePath = (new File(srcDir,filename) ).getPath();
+        String filePath = 
+            convertToUnixPath((new File(srcDir,filename) ).getPath());
+        // This is a path on the remote host, so it must be a Unix path.
+        // BUT getPath() uses the local dir delim, so on a Windows
+        // system it uses '\'.  The conver...() method fixes this.
+       
         File localCopy = new File(tmpDir,filename);
 
         // Download the file
@@ -89,5 +94,10 @@ public class SshCp {
         
         SCPClient srcScp = new SCPClient(con);
         srcScp.get(remoteFile,localDir);                
+    }
+    
+    static String convertToUnixPath(String p) {
+        if ( !p.contains("\\") ) return(p);
+        else return(p.replace("\\","/"));
     }
 }
